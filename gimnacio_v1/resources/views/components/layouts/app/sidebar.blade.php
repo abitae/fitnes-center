@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="{{ $appearanceClass ?? 'dark' }} {{ $accentClass ?? 'accent-neutral' }}" data-appearance="{{ $appearanceValue ?? 'system' }}" data-accent="{{ $accentValue ?? 'neutral' }}" data-sidebar-bg="{{ $sidebarBgValue ?? 'default' }}" data-header-bg="{{ $headerBgValue ?? 'default' }}">
     <head>
         @include('partials.head')
     </head>
     <body class="min-h-screen bg-white dark:bg-zinc-800 antialiased">
-        <flux:sidebar sticky collapsible="mobile" class="bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700">
+        <flux:sidebar id="app-sidebar" sticky collapsible="mobile" class="{{ $sidebarBgClass ?? 'bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700' }}">
             <flux:sidebar.header>
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2 px-2 py-2 min-w-0" wire:navigate>
                     <img src="{{ asset('Open9/logo_completo_sin_fondo.png') }}" alt="{{ config('app.name', 'Open9') }}" class="h-8 max-h-8 w-auto object-contain" />
@@ -113,11 +113,11 @@
             <flux:sidebar.spacer />
 
             <flux:sidebar.nav>
+                <div class="px-2 py-2">
+                    <livewire:personalization-modal />
+                </div>
                 <flux:sidebar.item icon="cog-6-tooth" :href="route('profile.edit')" :current="request()->routeIs('profile.*')" wire:navigate>
                     {{ __('Settings') }}
-                </flux:sidebar.item>
-                <flux:sidebar.item icon="information-circle" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Help') }}
                 </flux:sidebar.item>
             </flux:sidebar.nav>
 
@@ -162,11 +162,13 @@
             </flux:dropdown>
         </flux:sidebar>
 
-        <flux:header class="block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
+        <flux:header id="app-header" class="block! {{ $headerBgClass ?? 'bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700' }}">
             <flux:navbar class="lg:hidden w-full">
                 <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
                 <flux:spacer />
+
+                <livewire:theme-switcher />
 
                 <flux:dropdown position="top" align="start">
                     <flux:profile 
@@ -224,6 +226,66 @@
 
         @fluxScripts
         @stack('scripts')
+        <script>
+            (function() {
+                var sidebarBgClasses = {
+                    default: 'bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700',
+                    slate: 'bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800',
+                    blue: 'bg-blue-50 dark:bg-blue-950 border-r border-blue-200 dark:border-blue-800',
+                    green: 'bg-green-50 dark:bg-green-950 border-r border-green-200 dark:border-green-800',
+                    amber: 'bg-amber-50 dark:bg-amber-950 border-r border-amber-200 dark:border-amber-800',
+                    red: 'bg-red-50 dark:bg-red-950 border-r border-red-200 dark:border-red-800',
+                    violet: 'bg-violet-50 dark:bg-violet-950 border-r border-violet-200 dark:border-violet-800',
+                    indigo: 'bg-indigo-50 dark:bg-indigo-950 border-r border-indigo-200 dark:border-indigo-800'
+                };
+                var headerBgClasses = {
+                    default: 'bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700',
+                    slate: 'bg-white lg:bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800',
+                    blue: 'bg-white lg:bg-blue-50 dark:bg-blue-950 border-b border-blue-200 dark:border-blue-800',
+                    green: 'bg-white lg:bg-green-50 dark:bg-green-950 border-b border-green-200 dark:border-green-800',
+                    amber: 'bg-white lg:bg-amber-50 dark:bg-amber-950 border-b border-amber-200 dark:border-amber-800',
+                    red: 'bg-white lg:bg-red-50 dark:bg-red-950 border-b border-red-200 dark:border-red-800',
+                    violet: 'bg-white lg:bg-violet-50 dark:bg-violet-950 border-b border-violet-200 dark:border-violet-800',
+                    indigo: 'bg-white lg:bg-indigo-50 dark:bg-indigo-950 border-b border-indigo-200 dark:border-indigo-800'
+                };
+                function applyAppearance(params) {
+                    var appearance = params.appearance || 'system';
+                    var accent = params.accent || 'neutral';
+                    var sidebarBg = params.sidebar_bg || 'default';
+                    var headerBg = params.header_bg || 'default';
+                    var html = document.documentElement;
+                    html.classList.remove('light', 'dark');
+                    var appearanceClass = appearance === 'system'
+                        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+                        : appearance;
+                    html.classList.add(appearanceClass);
+                    html.setAttribute('data-appearance', appearance);
+                    html.classList.remove('accent-neutral', 'accent-blue', 'accent-green', 'accent-red');
+                    html.classList.add('accent-' + accent);
+                    html.setAttribute('data-accent', accent);
+                    html.setAttribute('data-sidebar-bg', sidebarBg);
+                    html.setAttribute('data-header-bg', headerBg);
+                    var sidebarEl = document.getElementById('app-sidebar');
+                    if (sidebarEl) {
+                        var base = sidebarEl.className.replace(/\bbg-\w+(-\d+)?|dark:bg-\w+(-\d+)?|border-r|border-\w+(-\d+)?|dark:border-\w+(-\d+)?/g, '').replace(/\s+/g, ' ').trim();
+                        sidebarEl.className = (base + ' ' + (sidebarBgClasses[sidebarBg] || sidebarBgClasses.default)).trim();
+                    }
+                    var headerEl = document.getElementById('app-header');
+                    if (headerEl) {
+                        var baseH = headerEl.className.replace(/\bbg-\w+(-\d+)?|dark:bg-\w+(-\d+)?|lg:bg-\w+(-\d+)?|border-b|border-\w+(-\d+)?|dark:border-\w+(-\d+)?/g, '').replace(/\s+/g, ' ').trim();
+                        headerEl.className = (baseH + ' ' + (headerBgClasses[headerBg] || headerBgClasses.default)).trim();
+                    }
+                }
+                document.addEventListener('livewire:init', function() {
+                    var initial = document.documentElement.getAttribute('data-appearance');
+                    var accent = document.documentElement.getAttribute('data-accent') || 'neutral';
+                    var sidebarBg = document.documentElement.getAttribute('data-sidebar-bg') || 'default';
+                    var headerBg = document.documentElement.getAttribute('data-header-bg') || 'default';
+                    if (initial) applyAppearance({ appearance: initial, accent: accent, sidebar_bg: sidebarBg, header_bg: headerBg });
+                    Livewire.on('appearance-updated', applyAppearance);
+                });
+            })();
+        </script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     </body>
 </html>

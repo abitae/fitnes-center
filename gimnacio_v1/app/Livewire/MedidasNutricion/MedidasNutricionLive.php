@@ -38,7 +38,10 @@ class MedidasNutricionLive extends Component
         'cita' => false,
         'delete_evaluacion' => false,
         'delete_cita' => false,
+        'reporte_preview' => false,
     ];
+
+    public $evaluacionIdReporte = null;
 
     // Selected items
     public $evaluacionId = null;
@@ -434,15 +437,17 @@ class MedidasNutricionLive extends Component
         }
     }
 
-    // Reporte methods
-    public function descargarReporte($evaluacionId)
+    // Reporte: abrir modal de previsualización (imprimir o descargar desde el modal)
+    public function abrirPreviewReporte($evaluacionId)
     {
-        try {
-            return $this->reporteService->generarReporteEvaluacion($evaluacionId);
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error al generar el reporte: ' . $e->getMessage());
-            return null;
-        }
+        $this->evaluacionIdReporte = $evaluacionId;
+        $this->modalState['reporte_preview'] = true;
+    }
+
+    public function cerrarPreviewReporte()
+    {
+        $this->modalState['reporte_preview'] = false;
+        $this->evaluacionIdReporte = null;
     }
 
     // Helper methods

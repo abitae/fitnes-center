@@ -38,7 +38,11 @@ class GestionNutricionalUnificadoLive extends Component
         'delete_nutricion' => false,
         'cita' => false,
         'delete_cita' => false,
+        'reporte_preview' => false,
     ];
+
+    /** ID de evaluación para el reporte en previsualización */
+    public $evaluacionIdReporte = null;
 
     // IDs
     public $evaluacionId = null;
@@ -266,14 +270,20 @@ class GestionNutricionalUnificadoLive extends Component
         }
     }
 
-    public function descargarReporte($evaluacionId)
+    /**
+     * Abre el modal de previsualización del reporte de evaluación.
+     * El usuario puede imprimir o descargar desde el modal.
+     */
+    public function abrirPreviewReporte($evaluacionId)
     {
-        try {
-            return $this->reporteService->generarReporteEvaluacion($evaluacionId);
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error al generar el reporte: ' . $e->getMessage());
-            return null;
-        }
+        $this->evaluacionIdReporte = $evaluacionId;
+        $this->modalState['reporte_preview'] = true;
+    }
+
+    public function cerrarPreviewReporte()
+    {
+        $this->modalState['reporte_preview'] = false;
+        $this->evaluacionIdReporte = null;
     }
 
     // ========== NUTRICIÓN ==========

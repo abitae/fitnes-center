@@ -34,6 +34,10 @@ class User extends Authenticatable
         'email',
         'password',
         'estado',
+        'appearance',
+        'accent',
+        'sidebar_bg',
+        'header_bg',
     ];
 
     /**

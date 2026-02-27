@@ -23,8 +23,8 @@
                             Descargar
                         </flux:button>
                         <flux:menu>
-                            <flux:menu.item wire:click="descargarReporte({{ $ultimaEvaluacion->id }})" icon="document-text">
-                                Reporte de Evaluaci?n
+                            <flux:menu.item wire:click="abrirPreviewReporte({{ $ultimaEvaluacion->id }})" icon="document-text">
+                                Reporte de Evaluación
                             </flux:menu.item>
                         </flux:menu>
                     </flux:dropdown>
@@ -696,6 +696,24 @@
                 <span wire:loading wire:target="deleteCita">Eliminando...</span>
             </flux:button>
         </div>
+    </flux:modal>
+
+    {{-- Modal previsualización reporte --}}
+    <flux:modal name="reporte-preview-modal" wire:model="modalState.reporte_preview" focusable class="md:max-w-4xl" variant="floating">
+        <flux:heading>Reporte de Evaluación</flux:heading>
+        <flux:subheading>Previsualiza el PDF y luego imprime o descarga.</flux:subheading>
+        @if($evaluacionIdReporte)
+            <div class="mt-4 flex flex-col gap-3">
+                <div class="min-h-[400px] w-full overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800">
+                    <iframe src="{{ route('reportes.evaluacion.preview', $evaluacionIdReporte) }}" class="h-[70vh] w-full min-h-[400px] border-0" title="Vista previa del reporte"></iframe>
+                </div>
+                <div class="flex flex-wrap items-center justify-end gap-2 border-t border-zinc-200 pt-3 dark:border-zinc-700">
+                    <flux:button variant="ghost" wire:click="cerrarPreviewReporte">Cerrar</flux:button>
+                    <a href="{{ route('reportes.evaluacion.preview', $evaluacionIdReporte) }}" target="_blank" rel="noopener" class="inline-flex items-center justify-center rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200">Imprimir (nueva pestaña)</a>
+                    <a href="{{ route('reportes.evaluacion.descargar', $evaluacionIdReporte) }}" target="_blank" download class="inline-flex items-center justify-center rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700">Descargar PDF</a>
+                </div>
+            </div>
+        @endif
     </flux:modal>
 
 </div>

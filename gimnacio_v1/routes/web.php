@@ -37,6 +37,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('servicios', \App\Livewire\Servicios\ServicioExternoLive::class)->name('servicios.index');
     Route::get('clases', \App\Livewire\Clases\ClaseLive::class)->name('clases.index');
 
+    // Reportes (previsualización e impresión/descarga)
+    Route::prefix('reportes')->name('reportes.')->group(function () {
+        Route::get('evaluacion/{evaluacionId}/preview', [\App\Http\Controllers\ReporteController::class, 'previewEvaluacion'])->name('evaluacion.preview');
+        Route::get('evaluacion/{evaluacionId}/descargar', [\App\Http\Controllers\ReporteController::class, 'descargarEvaluacion'])->name('evaluacion.descargar');
+        Route::get('historial-cliente/{clienteId}/preview', [\App\Http\Controllers\ReporteController::class, 'previewHistorialCliente'])->name('historial-cliente.preview');
+        Route::get('historial-cliente/{clienteId}/descargar', [\App\Http\Controllers\ReporteController::class, 'descargarHistorialCliente'])->name('historial-cliente.descargar');
+        Route::get('composicion-corporal/{clienteId}/preview', [\App\Http\Controllers\ReporteController::class, 'previewComposicionCorporal'])->name('composicion-corporal.preview');
+        Route::get('composicion-corporal/{clienteId}/descargar', [\App\Http\Controllers\ReporteController::class, 'descargarComposicionCorporal'])->name('composicion-corporal.descargar');
+    });
+
     // Gestión Nutricional (módulo unificado: Medidas, Nutrición, Citas, Calendario)
     Route::get('gestion-nutricional', \App\Livewire\GestionNutricional\GestionNutricionalUnificadoLive::class)->name('gestion-nutricional.index');
     Route::get('gestion-nutricional/calendario', \App\Livewire\GestionNutricional\CalendarioCitasLive::class)->name('gestion-nutricional.calendario');
