@@ -286,6 +286,68 @@ class GestionNutricionalUnificadoLive extends Component
         $this->evaluacionIdReporte = null;
     }
 
+    /**
+     * Envía el reporte de evaluación por WhatsApp: abre el chat con el mensaje
+     * "Descarga tu ficha de evaluacion" + URL firmada y (si hay API) envía el PDF.
+     */
+    public function enviarReportePorWhatsApp($evaluacionId)
+    {
+        try {
+            if (! $this->selectedCliente) {
+                session()->flash('error', 'Selecciona un cliente primero.');
+                return;
+            }
+            $urlChat = $this->selectedCliente->whatsapp_url;
+            if (! $urlChat) {
+                session()->flash('error', 'El cliente no tiene teléfono registrado. Añade un número en la ficha del cliente para poder enviar por WhatsApp.');
+                return;
+            }
+            $urlDescarga = $this->reporteService->getUrlDescargaEvaluacionFirmada((int) $evaluacionId);
+            $mensaje = 'Aqui tienes el link: ' . $urlDescarga;
+            $urlConMensaje = $this->selectedCliente->getWhatsAppUrlWithMessage($mensaje);
+            $this->js('window.open(' . json_encode($urlConMensaje) . ', "whatsapp_chat")');
+
+            $result = $this->reporteService->enviarReportePorWhatsApp((int) $evaluacionId);
+            if ($result['success']) {
+                session()->flash('success', $result['message']);
+            } else {
+                session()->flash('error', $result['message']);
+            }
+        } catch (\Throwable $e) {
+            session()->flash('error', 'No se pudo enviar el reporte. ' . ($e->getMessage()));
+        }
+    }
+
+    /**
+     * Muestra mensaje cuando se intenta enviar por WhatsApp sin teléfono registrado.
+     */
+    public function mostrarErrorSinTelefono()
+    {
+        session()->flash('error', 'El cliente no tiene teléfono registrado. Añade un número en la ficha del cliente para poder enviar por WhatsApp.');
+    }
+
+    /**
+     * Abre chat directo de WhatsApp con el cliente (wa.me/número/?text=mensaje) en nueva pestaña.
+     *
+     * @param  string|null  $mensaje  Mensaje predefinido; si es null se usa un saludo por defecto.
+     */
+    public function abrirChatWhatsApp(?string $mensaje = null)
+    {
+        if (! $this->selectedCliente) {
+            session()->flash('error', 'Selecciona un cliente primero.');
+            return;
+        }
+        $texto = $mensaje !== null && trim($mensaje) !== ''
+            ? trim($mensaje)
+            : 'Hola, te contacto desde el centro.';
+        $url = $this->selectedCliente->getWhatsAppUrlWithMessage($texto);
+        if (! $url) {
+            session()->flash('error', 'El cliente no tiene teléfono registrado. Añade un número en la ficha del cliente.');
+            return;
+        }
+        $this->js('window.open(' . json_encode($url) . ', "whatsapp_chat")');
+    }
+
     // ========== NUTRICIÓN ==========
     public function openCreateNutricionModal()
     {

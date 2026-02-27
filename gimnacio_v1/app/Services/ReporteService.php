@@ -4,11 +4,17 @@ namespace App\Services;
 
 use App\Models\Core\Cliente;
 use App\Models\Core\EvaluacionMedidasNutricion;
+use App\Services\WhatsApp\WhatsAppServiceInterface;
+use Illuminate\Support\Facades\URL;
 use Mpdf\Mpdf;
 use Symfony\Component\HttpFoundation\Response;
 
 class ReporteService
 {
+    public function __construct(
+        protected WhatsAppServiceInterface $whatsAppService
+    ) {}
+
     /**
      * Configuración por defecto de mPDF para todos los reportes.
      */
@@ -139,6 +145,56 @@ class ReporteService
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'attachment; filename="evaluacion_' . $evaluacion->id . '_' . now()->format('Y-m-d') . '.pdf"',
         ]);
+    }
+
+    /**
+     * Envía el reporte de evaluación por WhatsApp al teléfono del cliente.
+     * Genera el PDF en memoria y lo envía vía el servicio de WhatsApp.
+     *
+     * @return array{ success: bool, message: string }
+     */
+    public function enviarReportePorWhatsApp(int $evaluacionId): array
+    {
+        $evaluacion = EvaluacionMedidasNutricion::with('cliente')->findOrFail($evaluacionId);
+        $cliente = $evaluacion->cliente;
+        $telefono = $cliente->telefono ?? '';
+
+        if (empty(trim((string) $telefono))) {
+            return ['success' => false, 'message' => 'El cliente no tiene teléfono registrado. Añade un número en la ficha del cliente para poder enviar por WhatsApp.'];
+        }
+
+        $destino = trim($telefono);
+        if (! str_starts_with($destino, '+')) {
+            $destino = preg_replace('/^0/', '', $destino);
+            $destino = (str_starts_with($destino, '51') ? '+' : '+51') . $destino;
+        }
+
+        $pdfBinario = $this->generarPdfEvaluacion($evaluacionId);
+        $pdfBase64 = base64_encode($pdfBinario);
+        $nombreArchivo = 'reporte_evaluacion_' . $evaluacion->id . '_' . now()->format('Y-m-d') . '.pdf';
+
+        $urlDescarga = $this->getUrlDescargaEvaluacionFirmada($evaluacion->id);
+        $caption = 'Aqui tienes el link: ' . $urlDescarga;
+
+        $result = $this->whatsAppService->enviarDocumento($destino, $pdfBase64, $nombreArchivo, $caption);
+
+        if ($result['success']) {
+            return ['success' => true, 'message' => 'Reporte enviado por WhatsApp.'];
+        }
+
+        return ['success' => false, 'message' => $result['error'] ?? 'Error al enviar.'];
+    }
+
+    /**
+     * URL firmada temporal (48 h) para descargar el reporte de evaluación (para enviar por WhatsApp, etc.).
+     */
+    public function getUrlDescargaEvaluacionFirmada(int $evaluacionId): string
+    {
+        return URL::temporarySignedRoute(
+            'reportes.evaluacion.descargar.signed',
+            now()->addHours(48),
+            ['evaluacionId' => $evaluacionId]
+        );
     }
 
     /**

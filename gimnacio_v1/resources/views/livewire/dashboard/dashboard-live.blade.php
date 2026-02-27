@@ -1,14 +1,40 @@
-<div wire:poll.10s
+@php $tieneDeudaPoll = $selectedCliente && ((($saldoPendiente ?? 0) > 0) || (isset($selectedCliente->deuda_total) && $selectedCliente->deuda_total > 0)); @endphp
+{{-- Poll fijo cada 5s. Sonido de deuda intermitente cada 1s, con o sin fullscreen. --}}
+<div wire:poll.5s
+    data-tiene-deuda="{{ $tieneDeudaPoll ? '1' : '0' }}"
     x-data="{
         fullscreen: false,
+        soundEnabled: localStorage.getItem('dashboard_debt_sound') !== 'false',
         toggleFullscreen() {
             if (!document.fullscreenElement) {
                 this.$refs.dashboardPanel.requestFullscreen().then(() => { this.fullscreen = true; }).catch(() => {});
             } else {
                 document.exitFullscreen().then(() => { this.fullscreen = false; }).catch(() => {});
             }
+        },
+        toggleDebtSound() {
+            localStorage.setItem('dashboard_debt_sound', this.soundEnabled);
+        },
+        playDebtBeep() {
+            try {
+                var ctx = new (window.AudioContext || window.webkitAudioContext)();
+                var osc = ctx.createOscillator();
+                var g = ctx.createGain();
+                osc.connect(g);
+                g.connect(ctx.destination);
+                osc.frequency.value = 800;
+                osc.type = 'sine';
+                g.gain.setValueAtTime(0.25, ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + 0.15);
+            } catch (e) {}
         }
     }"
+    x-init="setInterval(() => {
+        var d = Alpine.$data($el);
+        if (d && d.soundEnabled && $el.getAttribute('data-tiene-deuda') === '1') d.playDebtBeep();
+    }, 1000)"
     x-ref="dashboardPanel"
     @fullscreenchange.window="fullscreen = !!document.fullscreenElement"
     :class="fullscreen ? 'space-y-6 bg-white min-h-screen p-4' : 'space-y-6'">
@@ -25,6 +51,12 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
+                <label class="hidden sm:flex items-center gap-2 rounded-lg bg-white/10 backdrop-blur-sm px-3 py-2 cursor-pointer" title="Activar o desactivar sonido cuando el cliente tiene deuda">
+                    <flux:icon name="speaker-wave" class="h-5 w-5 text-white" x-show="soundEnabled" />
+                    <flux:icon name="speaker-x-mark" class="h-5 w-5 text-white" x-show="!soundEnabled" x-cloak />
+                    <span class="text-xs font-medium text-white">Sonido deuda</span>
+                    <input type="checkbox" class="rounded border-white/30 bg-white/20 text-purple-600 focus:ring-white/50" x-model="soundEnabled" @change="toggleDebtSound()" />
+                </label>
                 <flux:button
                     variant="ghost"
                     size="sm"
@@ -110,9 +142,17 @@
                                 @endif
                                 @php $tieneDeuda = ($saldoPendiente > 0) || (isset($selectedCliente->deuda_total) && $selectedCliente->deuda_total > 0); $deudaTotal = $selectedCliente->deuda_total ?? $saldoPendiente; @endphp
                                 @if ($tieneDeuda)
-                                    <div class="rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/40 p-2.5 shadow-sm">
-                                        <p class="text-[11px] font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">Deuda pendiente</p>
-                                        <p class="mt-0.5 text-lg font-bold text-red-900 dark:text-red-100">S/ {{ number_format($deudaTotal, 2) }}</p>
+                                    <div wire:key="debt-alert-{{ $selectedClienteId }}"
+                                        class="rounded-lg border-2 border-red-500 bg-red-100 dark:border-red-500 dark:bg-red-950/60 p-3 shadow-lg ring-2 ring-red-400/50 dark:ring-red-500/40 animate-pulse">
+                                        <div class="flex items-center gap-2">
+                                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-200 dark:bg-red-900/70">
+                                                <flux:icon name="exclamation-triangle" class="h-5 w-5 text-red-700 dark:text-red-300" />
+                                            </div>
+                                            <div>
+                                                <p class="text-xs font-bold uppercase tracking-wider text-red-700 dark:text-red-300">Deuda pendiente</p>
+                                                <p class="mt-0.5 text-xl font-bold text-red-900 dark:text-red-100">S/ {{ number_format($deudaTotal, 2) }}</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 @else
                                     <div class="rounded-lg border border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-950/40 p-2.5 shadow-sm">
@@ -291,6 +331,7 @@
                         <th class="px-4 py-2.5 text-left">Ingreso</th>
                         <th class="px-4 py-2.5 text-left">Salida</th>
                         <th class="px-4 py-2.5 text-left">Estado</th>
+                        <th class="px-4 py-2.5 text-left">Deuda</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -300,13 +341,15 @@
                             $clienteId = $cliente ? (int) $cliente->id : 0;
                             $clienteNombre = $cliente ? ($cliente->nombres . ' ' . $cliente->apellidos) : 'N/A';
                             $esSeleccionado = $selectedClienteId && $clienteId && $clienteId === (int) $selectedClienteId;
+                            $tieneDeudaRow = $cliente && ($cliente->deuda_total ?? 0) > 0;
+                            $deudaMonto = $tieneDeudaRow ? (float) $cliente->deuda_total : 0;
                         @endphp
                         <tr
                             wire:key="asistencia-{{ $asistencia->id }}"
                             wire:click="selectClienteFromRow({{ $clienteId }})"
                             role="button"
                             tabindex="0"
-                            class="border-b border-zinc-100 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 cursor-pointer transition-colors {{ $esSeleccionado ? 'bg-purple-50 dark:bg-purple-900/20' : '' }}"
+                            class="border-b border-zinc-100 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-700/50 cursor-pointer transition-colors {{ $esSeleccionado ? 'bg-purple-50 dark:bg-purple-900/20' : '' }} {{ $tieneDeudaRow ? 'border-l-4 border-l-red-500 bg-red-50/70 dark:bg-red-950/30' : '' }}"
                         >
                             <td class="px-4 py-2 font-medium text-zinc-900 dark:text-zinc-100">{{ $clienteNombre }}</td>
                             <td class="px-4 py-2 text-zinc-600 dark:text-zinc-300">{{ $asistencia->fecha_hora_ingreso?->format('d/m/Y H:i') ?? '-' }}</td>
@@ -318,10 +361,20 @@
                                     <span class="inline-flex rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">Dentro</span>
                                 @endif
                             </td>
+                            <td class="px-4 py-2">
+                                @if ($tieneDeudaRow)
+                                    <span class="inline-flex items-center gap-1 rounded-md border-2 border-red-500 bg-red-100 px-2 py-1 text-xs font-bold uppercase tracking-wide text-red-800 dark:border-red-500 dark:bg-red-900/50 dark:text-red-200">
+                                        <flux:icon name="exclamation-triangle" class="h-4 w-4 shrink-0" />
+                                        S/ {{ number_format($deudaMonto, 2) }}
+                                    </span>
+                                @else
+                                    <span class="text-xs text-zinc-500 dark:text-zinc-400">—</span>
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-8 text-center text-zinc-500 dark:text-zinc-400">No hay registros de ingreso o salida.</td>
+                            <td colspan="5" class="px-4 py-8 text-center text-zinc-500 dark:text-zinc-400">No hay registros de ingreso o salida.</td>
                         </tr>
                     @endforelse
                 </tbody>

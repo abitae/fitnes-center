@@ -48,6 +48,39 @@ class Cliente extends Model
     }
 
     /**
+     * URL para abrir chat directo de WhatsApp (wa.me/51XXXXXXXXX, sin agregar contacto).
+     * Perú: 51 + 9 dígitos. Devuelve null si no hay teléfono.
+     */
+    public function getWhatsAppUrlAttribute(): ?string
+    {
+        return $this->getWhatsAppUrlWithMessage();
+    }
+
+    /**
+     * URL de WhatsApp con mensaje predefinido: wa.me/whatsappphonenumber/?text=urlencodedtext
+     *
+     * @param  string|null  $text  Mensaje predefinido (se codifica en URL).
+     */
+    public function getWhatsAppUrlWithMessage(?string $text = null): ?string
+    {
+        $tel = $this->telefono;
+        if ($tel === null || trim((string) $tel) === '') {
+            return null;
+        }
+        $digits = preg_replace('/\D/', '', $tel);
+        $digits = ltrim($digits, '0');
+        if (str_starts_with($digits, '51') && strlen($digits) >= 11) {
+            $base = 'https://wa.me/' . $digits;
+        } else {
+            $base = 'https://wa.me/51' . $digits;
+        }
+        if ($text !== null && trim($text) !== '') {
+            return $base . '/?text=' . rawurlencode(trim($text));
+        }
+        return $base;
+    }
+
+    /**
      * Valor booleano fiable para biotime_state (desde BD: 0/1, "0"/"1", true/false).
      */
     public function getBiotimeStateBoolAttribute(): bool

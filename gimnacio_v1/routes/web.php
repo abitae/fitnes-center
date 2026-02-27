@@ -10,6 +10,11 @@ Route::get('/', function () {
 
 Route::get('dashboard', \App\Livewire\Dashboard\DashboardLive::class)->middleware(['auth', 'verified'])->name('dashboard');
 
+// Descarga de reporte con URL firmada (para enlace enviado por WhatsApp al cliente; sin auth, válida 48 h)
+Route::get('reportes/evaluacion/descargar/{evaluacionId}', [\App\Http\Controllers\ReporteController::class, 'descargarEvaluacion'])
+    ->middleware(['signed'])
+    ->name('reportes.evaluacion.descargar.signed');
+
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 

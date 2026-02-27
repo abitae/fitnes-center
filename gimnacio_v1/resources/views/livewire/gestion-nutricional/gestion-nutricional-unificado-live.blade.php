@@ -13,9 +13,21 @@
                         <flux:menu.item wire:click="abrirPreviewReporte({{ $ultimaEvaluacion->id }})"
                             icon="document-text">
                             Reporte de Evaluación</flux:menu.item>
-                        <flux:menu.item wire:click="enviarReportePorWhatsApp({{ $ultimaEvaluacion->id }})"
-                            icon="envelope">
-                            Enviar por WhatsApp</flux:menu.item>
+                        @if($selectedCliente && filled($selectedCliente->telefono))
+                            <flux:menu.item wire:click="enviarReportePorWhatsApp({{ $ultimaEvaluacion->id }})"
+                                icon="envelope">
+                                Enviar por WhatsApp</flux:menu.item>
+                            <flux:menu.item wire:click="abrirChatWhatsApp" icon="chat-bubble-left-right">
+                                Abrir chat WhatsApp</flux:menu.item>
+                        @else
+                            <flux:menu.item icon="envelope"
+                                wire:click="mostrarErrorSinTelefono"
+                                title="Añade el teléfono del cliente en su ficha para enviar por WhatsApp">
+                                Enviar por WhatsApp (sin teléfono)</flux:menu.item>
+                            <flux:menu.item icon="chat-bubble-left-right" wire:click="mostrarErrorSinTelefono"
+                                title="Añade el teléfono del cliente para abrir chat">
+                                Abrir chat WhatsApp (sin teléfono)</flux:menu.item>
+                        @endif
                     </flux:menu>
                 </flux:dropdown>
             @endif
