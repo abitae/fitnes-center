@@ -6,11 +6,13 @@
                 <h1 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Clases</h1>
                 <p class="text-xs text-zinc-600 dark:text-zinc-400">Administra las clases del gimnasio</p>
             </div>
+            @can('clases.create')
             <flux:button icon="plus" color="purple" variant="primary" size="xs" wire:click="openCreateModal"
                 wire:loading.attr="disabled" wire:target="openCreateModal" aria-label="Crear nueva clase">
                 <span wire:loading.remove wire:target="openCreateModal">Nueva Clase</span>
                 <span wire:loading wire:target="openCreateModal">Cargando...</span>
             </flux:button>
+            @endcan
         </div>
 
         <!-- Search and Filters -->
@@ -282,6 +284,7 @@
         </form>
     </flux:modal>
 
+    @can('clases.delete')
     <!-- Delete Modal -->
     <flux:modal name="delete-modal" wire:model="modalState.delete" focusable class="md:w-lg">
         <div class="p-4">
@@ -306,5 +309,6 @@
             </flux:button>
         </div>
     </flux:modal>
+    @endcan
 
 </div>

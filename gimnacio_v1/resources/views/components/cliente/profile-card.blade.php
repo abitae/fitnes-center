@@ -162,6 +162,7 @@
     @if (!$hideActions)
         <div class="border-t border-zinc-200 dark:border-zinc-700 pt-2 space-y-1.5">
             <div class="flex gap-1.5">
+                @can('clientes.update')
                 <flux:button icon="photo" color="purple" variant="primary" size="xs"
                     wire:click="openPhotoModal({{ $cliente->id }})" class="flex-1" aria-label="Subir foto">
                     Foto
@@ -170,11 +171,14 @@
                     wire:click="openEditModal({{ $cliente->id }})" class="flex-1" aria-label="Editar cliente">
                     Editar
                 </flux:button>
+                @endcan
             </div>
+            @can('clientes.delete')
             <flux:button icon="trash" color="red" variant="primary" size="xs"
                 wire:click="openDeleteModal({{ $cliente->id }})" class="w-full" aria-label="Eliminar cliente">
                 Eliminar
             </flux:button>
+            @endcan
         </div>
     @endif
 </div>

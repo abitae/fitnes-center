@@ -6,11 +6,13 @@
                 <h1 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Clientes</h1>
                 <p class="text-xs text-zinc-600 dark:text-zinc-400">Administra los clientes del gimnasio</p>
             </div>
+            @can('clientes.create')
             <flux:button icon="plus" color="purple" variant="primary" size="xs" wire:click="openCreateModal"
                 wire:loading.attr="disabled" wire:target="openCreateModal" aria-label="Crear nuevo cliente">
                 <span wire:loading.remove wire:target="openCreateModal">Nuevo Cliente</span>
                 <span wire:loading wire:target="openCreateModal">Cargando...</span>
             </flux:button>
+            @endcan
         </div>
 
         <!-- Search and Filters -->
@@ -73,9 +75,7 @@
                                 <th class="px-4 py-2 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400">
                                     BioTime
                                 </th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                                    Pend. actualización
-                                </th>
+
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-200 bg-white dark:divide-zinc-700 dark:bg-zinc-800">
@@ -102,17 +102,29 @@
                                             {{ ucfirst($cliente->estado_cliente) }}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-2.5 text-xs">
+                                    <td class="px-4 py-2.5 text-xs text-center space-x-1">
                                         @php($biotimeState = $cliente->biotime_state_bool)
-                                        <flux:badge variant="solid" color="{{ $biotimeState ? 'lime' : 'red' }}" size="sm">
-                                            {{ $biotimeState ? 'Sí' : 'No' }}
-                                        </flux:badge>
-                                    </td>
-                                    <td class="px-4 py-2.5 text-xs">
+                                        <span class="inline-flex items-center" title="Sincronización BioTime activa/inactiva">
+                                            <flux:icon
+                                                name="{{ $biotimeState ? 'check-circle' : 'x-circle' }}"
+                                                class="size-6"
+                                                style="color: {{ $biotimeState ? '#65a30d' : '#dc2626' }};"
+                                            />
+                                            <span class="sr-only">
+                                                {{ $biotimeState ? 'BioTime activo' : 'BioTime inactivo' }}
+                                            </span>
+                                        </span>
                                         @php($biotimeUpdate = $cliente->biotime_update_bool)
-                                        <flux:badge variant="solid" color="{{ $biotimeUpdate ? 'lime' : 'red' }}" size="sm">
-                                            {{ $biotimeUpdate ? 'Sí' : 'No' }}
-                                        </flux:badge>
+                                        <span class="inline-flex items-center" title="Actualización pendiente de BioTime">
+                                            <flux:icon
+                                                name="{{ $biotimeUpdate ? 'arrow-path' : 'x-circle' }}"
+                                                class="size-6"
+                                                style="color: {{ $biotimeUpdate ? '#65a30d' : '#dc2626' }};"
+                                            />
+                                            <span class="sr-only">
+                                                {{ $biotimeUpdate ? 'Necesita actualizar en BioTime' : 'Sin actualización pendiente' }}
+                                            </span>
+                                        </span>
                                     </td>
                                 </tr>
                             @empty
@@ -268,6 +280,7 @@
                     </div>
                 </div>
 
+                @can('clientes.update')
                 <!-- Botón para agregar foto -->
                 <div class="flex justify-center">
                     <flux:button variant="ghost" size="xs" type="button"
@@ -275,6 +288,7 @@
                         <span>📷 Agregar Foto</span>
                     </flux:button>
                 </div>
+                @endcan
             </div>
 
             <div class="flex justify-end gap-2 border-t border-zinc-200 p-3 dark:border-zinc-700">
@@ -692,6 +706,7 @@
         </div>
     </flux:modal>
 
+    @can('clientes.delete')
     <!-- Delete Modal -->
     <flux:modal name="delete-modal" wire:model="modalState.delete" focusable class="md:w-lg">
         <div class="p-4">
@@ -716,6 +731,7 @@
             </flux:button>
         </div>
     </flux:modal>
+    @endcan
 
 </div>
 

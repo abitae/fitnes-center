@@ -10,17 +10,21 @@
                 @php
                     $cajaAbierta = $this->cajasAbiertas->first();
                 @endphp
+                @can('cajas.update')
                 <flux:button icon="x-mark" color="red" variant="primary" size="sm" wire:click="abrirModalCierre({{ $cajaAbierta->id }})"
                     wire:loading.attr="disabled" wire:target="abrirModalCierre" aria-label="Cerrar caja">
                     <span wire:loading.remove wire:target="abrirModalCierre">Cerrar Caja</span>
                     <span wire:loading wire:target="abrirModalCierre">Cargando...</span>
                 </flux:button>
+                @endcan
             @else
+                @can('cajas.create')
                 <flux:button icon="plus" color="purple" variant="primary" size="sm" wire:click="abrirModalApertura"
                     wire:loading.attr="disabled" wire:target="abrirModalApertura" aria-label="Abrir nueva caja">
                     <span wire:loading.remove wire:target="abrirModalApertura">Abrir Caja</span>
                     <span wire:loading wire:target="abrirModalApertura">Cargando...</span>
                 </flux:button>
+                @endcan
             @endif
         </div>
 
@@ -46,7 +50,9 @@
                         <span class="text-[10px] text-zinc-500 dark:text-zinc-400">{{ $cajaAbierta->fecha_apertura->format('d/m/Y H:i') }}</span>
                     </div>
                     <div class="flex gap-1">
+                        @can('cajas.update')
                         <flux:button size="xs" variant="ghost" color="red" icon="x-mark" wire:click="abrirModalCierre({{ $cajaAbierta->id }})">Cerrar</flux:button>
+                        @endcan
                     </div>
                 </div>
                 <div class="grid grid-cols-4 gap-2 text-center">
@@ -229,7 +235,9 @@
                                     <div class="flex justify-center gap-0.5">
                                         <flux:button size="xs" variant="ghost" icon="document-text" wire:click="verReporte({{ $caja->id }})" title="Ver Reporte"></flux:button>
                                         @if ($caja->estado === 'abierta' && $caja->usuario_id === auth()->id())
+                                            @can('cajas.update')
                                             <flux:button size="xs" variant="ghost" color="red" icon="x-mark" wire:click="abrirModalCierre({{ $caja->id }})" title="Cerrar Caja"></flux:button>
+                                            @endcan
                                         @endif
                                     </div>
                                 </td>

@@ -35,6 +35,8 @@ class User extends Authenticatable
         'password',
         'estado',
         'appearance',
+        'appearance_sidebar',
+        'appearance_header',
         'accent',
         'sidebar_bg',
         'header_bg',

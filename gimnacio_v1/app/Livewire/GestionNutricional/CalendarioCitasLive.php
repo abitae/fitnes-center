@@ -20,6 +20,11 @@ class CalendarioCitasLive extends Component
         $this->citaService = $citaService;
     }
 
+    public function mount()
+    {
+        $this->authorize('gestion-nutricional.view');
+    }
+
     public function abrirDetalleCita($id)
     {
         $id = (int) $id;
@@ -42,6 +47,7 @@ class CalendarioCitasLive extends Component
 
     public function actualizarEstadoCita()
     {
+        $this->authorize('gestion-nutricional.update');
         try {
             if (! $this->citaId) {
                 return;

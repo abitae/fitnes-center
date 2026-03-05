@@ -121,6 +121,7 @@ class GestionNutricionalUnificadoLive extends Component
 
     public function mount()
     {
+        $this->authorize('gestion-nutricional.view');
         $this->clientes = collect([]);
         $this->evaluacionFormData['evaluado_por'] = auth()->id();
         $this->nutricionFormData['fecha'] = now()->format('Y-m-d');
@@ -175,6 +176,7 @@ class GestionNutricionalUnificadoLive extends Component
     // ========== EVALUACIONES (MEDIDAS) ==========
     public function openCreateEvaluacionModal()
     {
+        $this->authorize('gestion-nutricional.create');
         if (! $this->selectedClienteId) {
             session()->flash('error', 'Debes seleccionar un cliente primero');
             return;
@@ -186,6 +188,7 @@ class GestionNutricionalUnificadoLive extends Component
 
     public function openEditEvaluacionModal($id)
     {
+        $this->authorize('gestion-nutricional.update');
         $evaluacion = $this->evaluacionService->find($id);
         if (! $evaluacion) {
             session()->flash('error', 'Evaluación no encontrada');
@@ -199,12 +202,14 @@ class GestionNutricionalUnificadoLive extends Component
 
     public function openDeleteEvaluacionModal($id)
     {
+        $this->authorize('gestion-nutricional.delete');
         $this->evaluacionId = $id;
         $this->modalState['delete_evaluacion'] = true;
     }
 
     public function saveEvaluacion()
     {
+        $this->authorize($this->evaluacionId ? 'gestion-nutricional.update' : 'gestion-nutricional.create');
         try {
             if (! $this->selectedClienteId) {
                 session()->flash('error', 'Debes seleccionar un cliente primero');
@@ -232,6 +237,7 @@ class GestionNutricionalUnificadoLive extends Component
 
     public function deleteEvaluacion()
     {
+        $this->authorize('gestion-nutricional.delete');
         try {
             $this->evaluacionService->delete($this->evaluacionId);
             session()->flash('success', 'Evaluación eliminada correctamente');
@@ -351,6 +357,7 @@ class GestionNutricionalUnificadoLive extends Component
     // ========== NUTRICIÓN ==========
     public function openCreateNutricionModal()
     {
+        $this->authorize('gestion-nutricional.create');
         if (! $this->selectedClienteId) {
             session()->flash('error', 'Selecciona un cliente primero');
             return;
@@ -371,6 +378,7 @@ class GestionNutricionalUnificadoLive extends Component
 
     public function openEditNutricionModal($id)
     {
+        $this->authorize('gestion-nutricional.update');
         $seg = $this->seguimientoService->find($id);
         if (! $seg) {
             session()->flash('error', 'Seguimiento no encontrado');
@@ -392,12 +400,14 @@ class GestionNutricionalUnificadoLive extends Component
 
     public function openDeleteNutricionModal($id)
     {
+        $this->authorize('gestion-nutricional.delete');
         $this->seguimientoId = $id;
         $this->modalState['delete_nutricion'] = true;
     }
 
     public function saveNutricion()
     {
+        $this->authorize($this->seguimientoId ? 'gestion-nutricional.update' : 'gestion-nutricional.create');
         try {
             if (! $this->selectedClienteId) {
                 session()->flash('error', 'Selecciona un cliente');
@@ -431,6 +441,7 @@ class GestionNutricionalUnificadoLive extends Component
 
     public function deleteNutricion()
     {
+        $this->authorize('gestion-nutricional.delete');
         try {
             $this->seguimientoService->delete($this->seguimientoId);
             session()->flash('success', 'Seguimiento eliminado');
@@ -445,6 +456,7 @@ class GestionNutricionalUnificadoLive extends Component
     // ========== CITAS ==========
     public function openCreateCitaModal()
     {
+        $this->authorize('gestion-nutricional.create');
         if (! $this->selectedClienteId) {
             session()->flash('error', 'Selecciona un cliente primero');
             return;
@@ -464,6 +476,7 @@ class GestionNutricionalUnificadoLive extends Component
 
     public function openEditCitaModal($id)
     {
+        $this->authorize('gestion-nutricional.update');
         $cita = $this->citaService->find($id);
         if (! $cita) {
             session()->flash('error', 'Cita no encontrada');
@@ -484,12 +497,14 @@ class GestionNutricionalUnificadoLive extends Component
 
     public function openDeleteCitaModal($id)
     {
+        $this->authorize('gestion-nutricional.delete');
         $this->citaId = $id;
         $this->modalState['delete_cita'] = true;
     }
 
     public function saveCita()
     {
+        $this->authorize($this->citaId ? 'gestion-nutricional.update' : 'gestion-nutricional.create');
         try {
             if (! $this->selectedClienteId) {
                 session()->flash('error', 'Selecciona un cliente');
@@ -535,6 +550,7 @@ class GestionNutricionalUnificadoLive extends Component
 
     public function deleteCita()
     {
+        $this->authorize('gestion-nutricional.delete');
         try {
             $this->citaService->delete($this->citaId);
             session()->flash('success', 'Cita eliminada');

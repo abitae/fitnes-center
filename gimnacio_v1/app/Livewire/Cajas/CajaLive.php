@@ -51,6 +51,7 @@ class CajaLive extends Component
 
     public function mount()
     {
+        $this->authorize('cajas.view');
         // Establecer valores por defecto para los filtros de fecha
         $this->fechaDesde = now()->subDays(15)->format('Y-m-d');
         $this->fechaHasta = now()->format('Y-m-d');
@@ -77,6 +78,7 @@ class CajaLive extends Component
      */
     public function abrirModalApertura()
     {
+        $this->authorize('cajas.create');
         $this->resetFormApertura();
         $this->mostrarModalApertura = true;
     }

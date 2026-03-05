@@ -20,6 +20,7 @@ class BiotimeIndexLive extends Component
 
     public function mount()
     {
+        $this->authorize('biotime.view');
         $this->checkConnection();
     }
 

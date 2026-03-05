@@ -48,6 +48,7 @@ class CheckingLive extends Component
 
     public function mount()
     {
+        $this->authorize('checking.view');
         $this->clientes = collect([]);
     }
 
@@ -173,6 +174,7 @@ class CheckingLive extends Component
      */
     public function registrarIngreso()
     {
+        $this->authorize('checking.create');
         if (!$this->selectedClienteId) {
             session()->flash('error', 'Debes seleccionar un cliente primero.');
             return;
@@ -241,6 +243,7 @@ class CheckingLive extends Component
      */
     public function registrarSalida($asistenciaId)
     {
+        $this->authorize('checking.update');
         if (!$this->selectedClienteId) {
             session()->flash('error', 'Debes seleccionar un cliente primero.');
             return;

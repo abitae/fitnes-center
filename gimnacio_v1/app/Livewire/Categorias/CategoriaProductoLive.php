@@ -33,6 +33,7 @@ class CategoriaProductoLive extends Component
 
     public function mount()
     {
+        $this->authorize('categorias-productos.view');
         $this->resetPage();
     }
 
@@ -43,12 +44,14 @@ class CategoriaProductoLive extends Component
 
     public function openCreateModal()
     {
+        $this->authorize('categorias-productos.create');
         $this->resetForm();
         $this->modalState['create'] = true;
     }
 
     public function openEditModal($id)
     {
+        $this->authorize('categorias-productos.update');
         $categoria = $this->service->find($id);
         if (!$categoria) {
             session()->flash('error', 'Categoría no encontrada');
@@ -66,12 +69,14 @@ class CategoriaProductoLive extends Component
 
     public function openDeleteModal($id)
     {
+        $this->authorize('categorias-productos.delete');
         $this->categoriaId = $id;
         $this->modalState['delete'] = true;
     }
 
     public function save()
     {
+        $this->authorize($this->categoriaId ? 'categorias-productos.update' : 'categorias-productos.create');
         try {
             if ($this->categoriaId) {
                 $this->service->update($this->categoriaId, $this->formData);
@@ -89,6 +94,7 @@ class CategoriaProductoLive extends Component
 
     public function delete()
     {
+        $this->authorize('categorias-productos.delete');
         try {
             $this->service->delete($this->categoriaId);
             session()->flash('success', 'Categoría eliminada exitosamente.');

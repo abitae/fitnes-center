@@ -33,6 +33,7 @@ class MensajesLive extends Component
 
     public function mount()
     {
+        $this->authorize('crm-mensajes.view');
         $this->clientes = collect([]);
     }
 
@@ -69,6 +70,7 @@ class MensajesLive extends Component
 
     public function enviarWhatsApp()
     {
+        $this->authorize('crm-mensajes.create');
         try {
             if (! $this->selectedClienteId) {
                 session()->flash('error', 'Selecciona un cliente');

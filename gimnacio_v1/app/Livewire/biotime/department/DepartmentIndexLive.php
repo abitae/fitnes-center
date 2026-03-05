@@ -59,6 +59,7 @@ class DepartmentIndexLive extends Component
 
     public function mount()
     {
+        $this->authorize('biotime.view');
         $this->loadCompanies();
         $this->loadDepartments();
     }
@@ -156,6 +157,7 @@ class DepartmentIndexLive extends Component
 
     public function openCreateModal()
     {
+        $this->authorize('biotime.create');
         $this->editingId = null;
         $this->formDeptCode = '';
         $this->formDeptName = '';
@@ -168,6 +170,7 @@ class DepartmentIndexLive extends Component
 
     public function openEditModal(int $id)
     {
+        $this->authorize('biotime.update');
         try {
             $dept = $this->client->getDepartment($id);
             $this->editingId = $id;
@@ -220,6 +223,7 @@ class DepartmentIndexLive extends Component
 
     public function saveDepartment()
     {
+        $this->authorize($this->editingId ? 'biotime.update' : 'biotime.create');
         $this->validate([
             'formDeptCode' => ['required', 'string', 'max:255'],
             'formDeptName' => ['required', 'string', 'max:255'],
@@ -272,6 +276,7 @@ class DepartmentIndexLive extends Component
 
     public function deleteDepartment()
     {
+        $this->authorize('biotime.delete');
         if ($this->deleteId === null) {
             return;
         }

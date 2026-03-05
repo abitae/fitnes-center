@@ -83,6 +83,7 @@ class POSLive extends Component
 
     public function mount()
     {
+        $this->authorize('pos.view');
         $this->clientesCobro = collect([]);
         // Validar que haya caja abierta
         if (!$this->cajaService->validarCajaAbierta(auth()->id())) {

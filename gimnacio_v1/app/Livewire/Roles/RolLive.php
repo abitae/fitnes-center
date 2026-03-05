@@ -29,9 +29,7 @@ class RolLive extends Component
 
     public function mount()
     {
-        if (! auth()->user()->hasAnyRole(['super_administrador', 'administrador'])) {
-            abort(403);
-        }
+        $this->authorize('roles.view');
     }
 
     public function updatingSearch()
@@ -41,12 +39,14 @@ class RolLive extends Component
 
     public function openCreateModal()
     {
+        $this->authorize('roles.create');
         $this->resetForm();
         $this->modalState['form'] = true;
     }
 
     public function openEditModal($id)
     {
+        $this->authorize('roles.update');
         $role = Role::with('permissions')->find($id);
         if (! $role) {
             session()->flash('error', 'Rol no encontrado');
@@ -63,12 +63,14 @@ class RolLive extends Component
 
     public function openDeleteModal($id)
     {
+        $this->authorize('roles.delete');
         $this->roleId = $id;
         $this->modalState['delete'] = true;
     }
 
     public function save()
     {
+        $this->authorize($this->roleId ? 'roles.update' : 'roles.create');
         $this->validate([
             'formData.name' => 'required|string|max:255',
             'formData.guard_name' => 'required|string|in:web,api',
@@ -101,6 +103,7 @@ class RolLive extends Component
 
     public function delete()
     {
+        $this->authorize('roles.delete');
         try {
             $role = Role::withCount('users')->findOrFail($this->roleId);
             if ($role->users_count > 0) {

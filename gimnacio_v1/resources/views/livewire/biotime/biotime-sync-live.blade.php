@@ -116,18 +116,22 @@
                                     <th class="px-4 py-2 text-left font-medium text-zinc-700 dark:text-zinc-300">Código</th>
                                     <th class="px-4 py-2 text-left font-medium text-zinc-700 dark:text-zinc-300">Nombre</th>
                                     <th class="px-4 py-2 text-left font-medium text-zinc-700 dark:text-zinc-300">Cliente (local)</th>
+                                    <th class="px-4 py-2 text-left font-medium text-zinc-700 dark:text-zinc-300">Acción</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-zinc-200 dark:divide-zinc-700">
                                 @forelse ($employees as $emp)
                                     @php
                                         $empCode = $emp['emp_code'] ?? (string)($emp['id'] ?? '');
-                                        $cliente = ($empCode !== null && $empCode !== '' && is_numeric($empCode)) ? \App\Models\Core\Cliente::find((int) $empCode) : null;
+                                        $empCodeNumeric = $empCode !== null && $empCode !== '' && is_numeric($empCode);
+                                        $cliente = $empCodeNumeric ? \App\Models\Core\Cliente::find((int) $empCode) : null;
+                                        $firstName = trim($emp['first_name'] ?? '');
+                                        $lastName = trim($emp['last_name'] ?? '');
                                     @endphp
                                     <tr>
                                         <td class="px-4 py-2 font-mono text-zinc-900 dark:text-zinc-100">{{ $empCode }}</td>
                                         <td class="px-4 py-2 text-zinc-900 dark:text-zinc-100">
-                                            {{ trim(($emp['first_name'] ?? '') . ' ' . ($emp['last_name'] ?? '')) ?: '-' }}
+                                            {{ ($firstName . ' ' . $lastName) ?: '-' }}
                                         </td>
                                         <td class="px-4 py-2 text-zinc-600 dark:text-zinc-400">
                                             @if ($cliente)
@@ -136,10 +140,37 @@
                                                 —
                                             @endif
                                         </td>
+                                        <td class="px-4 py-2 flex flex-wrap gap-1">
+                                            @if (!$cliente && $empCodeNumeric)
+                                                <flux:button type="button" size="xs" variant="ghost" color="purple"
+                                                    wire:click="createClienteFromBiotimeEmployee({{ (int) $empCode }}, '{{ addslashes($firstName) }}', '{{ addslashes($lastName) }}')"
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="createClienteFromBiotimeEmployee">
+                                                    <span wire:loading.remove wire:target="createClienteFromBiotimeEmployee">Actualizar cliente</span>
+                                                    <span wire:loading wire:target="createClienteFromBiotimeEmployee">...</span>
+                                                </flux:button>
+                                            @endif
+                                            @php
+                                                $biotimeInternalId = (int)($emp['id'] ?? 0);
+                                            @endphp
+                                            @if ($biotimeInternalId > 0)
+                                                <flux:button type="button" size="xs" variant="ghost" color="red"
+                                                    wire:click="deleteEmployeeFromBiotime({{ $biotimeInternalId }}, {{ $empCodeNumeric ? (int) $empCode : 0 }})"
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="deleteEmployeeFromBiotime"
+                                                    title="Eliminar este empleado de BioTime">
+                                                    <span wire:loading.remove wire:target="deleteEmployeeFromBiotime">Eliminar de BioTime</span>
+                                                    <span wire:loading wire:target="deleteEmployeeFromBiotime">...</span>
+                                                </flux:button>
+                                            @endif
+                                            @if (!$empCodeNumeric)
+                                                —
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="3" class="px-4 py-8 text-center text-zinc-500 dark:text-zinc-400">
+                                        <td colspan="4" class="px-4 py-8 text-center text-zinc-500 dark:text-zinc-400">
                                             No hay empleados o no se pudo cargar la lista. Comprueba la configuración.
                                         </td>
                                     </tr>

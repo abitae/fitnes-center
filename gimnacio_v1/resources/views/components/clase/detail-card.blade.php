@@ -73,15 +73,19 @@
 
     <!-- Botones de Acción -->
     <div class="border-t border-zinc-200 dark:border-zinc-700 pt-2 space-y-1.5">
+        @can('clases.update')
         <div class="flex gap-1.5">
             <flux:button icon="pencil" color="blue" variant="primary" size="xs"
                 wire:click="openEditModal({{ $clase->id }})" class="flex-1" aria-label="Editar clase">
                 Editar
             </flux:button>
         </div>
+        @endcan
+        @can('clases.delete')
         <flux:button icon="trash" color="red" variant="primary" size="xs"
             wire:click="openDeleteModal({{ $clase->id }})" class="w-full" aria-label="Eliminar clase">
             Eliminar
         </flux:button>
+        @endcan
     </div>
 </div>

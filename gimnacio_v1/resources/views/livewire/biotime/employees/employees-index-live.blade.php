@@ -51,26 +51,38 @@
                         <table class="w-full text-sm">
                             <thead class="bg-zinc-50 dark:bg-zinc-900">
                                 <tr>
+                                    <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Id</th>
                                     <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Documento</th>
                                     <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Nombre</th>
                                     <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">BioTime</th>
+                                    <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Estado</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-zinc-200 dark:divide-zinc-700">
                                 @forelse ($this->clientesActivosPaginator as $c)
                                     <tr>
+                                        <td class="px-3 py-2 font-mono text-zinc-500 dark:text-zinc-400">{{ $c->id }}</td>
                                         <td class="px-3 py-2 font-mono text-zinc-900 dark:text-zinc-100">{{ $c->numero_documento }}</td>
                                         <td class="px-3 py-2 text-zinc-900 dark:text-zinc-100">{{ $c->nombres }} {{ $c->apellidos }}</td>
                                         <td class="px-3 py-2">
                                             @php($enBiotime = $c->biotime_state_bool ?? false)
-                                            <flux:badge variant="solid" color="{{ $enBiotime ? 'lime' : 'red' }}" size="sm">
-                                                {{ $enBiotime ? 'Sí' : 'No' }}
-                                            </flux:badge>
+                                            @if ($enBiotime)
+                                                <span class="inline-flex text-lime-600 dark:text-lime-400" title="En BioTime">
+                                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                                </span>
+                                            @else
+                                                <span class="inline-flex text-red-600 dark:text-red-400" title="No en BioTime">
+                                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="px-3 py-2">
+                                            <span class="inline-flex rounded-full px-1.5 py-0.5 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">{{ ucfirst($c->estado_cliente ?? 'activo') }}</span>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="3" class="px-3 py-6 text-center text-zinc-500 dark:text-zinc-400">Ningún cliente activo.</td>
+                                        <td colspan="5" class="px-3 py-6 text-center text-zinc-500 dark:text-zinc-400">Ningún cliente activo.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -105,16 +117,35 @@
                         <table class="w-full text-sm">
                             <thead class="bg-zinc-50 dark:bg-zinc-900">
                                 <tr>
+                                    <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Id</th>
                                     <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Documento</th>
                                     <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Nombre</th>
+                                    <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">BioTime</th>
+                                    <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Estado</th>
                                     <th class="px-3 py-2 text-right font-medium text-zinc-600 dark:text-zinc-400">Acción</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-zinc-200 dark:divide-zinc-700">
                                 @forelse ($this->clientesInactivosPaginator as $c)
                                     <tr>
+                                        <td class="px-3 py-2 font-mono text-zinc-500 dark:text-zinc-400">{{ $c->id }}</td>
                                         <td class="px-3 py-2 font-mono text-zinc-900 dark:text-zinc-100">{{ $c->numero_documento }}</td>
                                         <td class="px-3 py-2 text-zinc-900 dark:text-zinc-100">{{ $c->nombres }} {{ $c->apellidos }}</td>
+                                        <td class="px-3 py-2">
+                                            @php($enBiotime = $c->biotime_state_bool ?? false)
+                                            @if ($enBiotime)
+                                                <span class="inline-flex text-lime-600 dark:text-lime-400" title="En BioTime">
+                                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                                </span>
+                                            @else
+                                                <span class="inline-flex text-red-600 dark:text-red-400" title="No en BioTime">
+                                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="px-3 py-2">
+                                            <span class="inline-flex rounded-full px-1.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400">{{ ucfirst($c->estado_cliente ?? 'inactivo') }}</span>
+                                        </td>
                                         <td class="px-3 py-2 text-right">
                                             <flux:button size="xs" variant="ghost" color="red" wire:click="confirmSuspend({{ $c->id }})">
                                                 Suspender
@@ -123,7 +154,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="3" class="px-3 py-6 text-center text-zinc-500 dark:text-zinc-400">Ningún cliente inactivo.</td>
+                                        <td colspan="6" class="px-3 py-6 text-center text-zinc-500 dark:text-zinc-400">Ningún cliente inactivo.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -152,19 +183,38 @@
                         <table class="w-full text-sm">
                             <thead class="bg-zinc-50 dark:bg-zinc-900">
                                 <tr>
+                                    <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Id</th>
                                     <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Documento</th>
                                     <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Nombre</th>
+                                    <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">BioTime</th>
+                                    <th class="px-3 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Estado</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-zinc-200 dark:divide-zinc-700">
                                 @forelse ($this->clientesSuspendidosPaginator as $c)
                                     <tr>
+                                        <td class="px-3 py-2 font-mono text-zinc-500 dark:text-zinc-400">{{ $c->id }}</td>
                                         <td class="px-3 py-2 font-mono text-zinc-900 dark:text-zinc-100">{{ $c->numero_documento }}</td>
                                         <td class="px-3 py-2 text-zinc-900 dark:text-zinc-100">{{ $c->nombres }} {{ $c->apellidos }}</td>
+                                        <td class="px-3 py-2">
+                                            @php($enBiotime = $c->biotime_state_bool ?? false)
+                                            @if ($enBiotime)
+                                                <span class="inline-flex text-lime-600 dark:text-lime-400" title="En BioTime">
+                                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                                </span>
+                                            @else
+                                                <span class="inline-flex text-red-600 dark:text-red-400" title="No en BioTime">
+                                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="px-3 py-2">
+                                            <span class="inline-flex rounded-full px-1.5 py-0.5 text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400">{{ ucfirst($c->estado_cliente ?? 'suspendido') }}</span>
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="2" class="px-3 py-6 text-center text-zinc-500 dark:text-zinc-400">Ningún cliente suspendido.</td>
+                                        <td colspan="5" class="px-3 py-6 text-center text-zinc-500 dark:text-zinc-400">Ningún cliente suspendido.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -201,7 +251,7 @@
     </flux:modal>
 
     {{-- Modal: confirmar suspender todos --}}
-    <flux:modal name="suspend-masivo-modal" wire:model="confirmSuspendMasivo" focusable class="md:w-md">
+    <flux:modal name="suspend-masivo-modal" wire:model="showSuspendMasivoModal" focusable class="md:w-md">
         <div class="p-4">
             <h2 class="text-base font-semibold text-zinc-900 dark:text-zinc-100">Suspender todos los inactivos</h2>
             <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">

@@ -36,9 +36,7 @@ class UsuarioLive extends Component
 
     public function mount()
     {
-        if (! Auth::user()->hasAnyRole(['super_administrador', 'administrador'])) {
-            abort(403);
-        }
+        $this->authorize('usuarios.view');
     }
 
     public function updatingSearch()
@@ -53,12 +51,14 @@ class UsuarioLive extends Component
 
     public function openCreateModal()
     {
+        $this->authorize('usuarios.create');
         $this->resetForm();
         $this->modalState['form'] = true;
     }
 
     public function openEditModal($id)
     {
+        $this->authorize('usuarios.update');
         $user = User::with('roles')->find($id);
         if (! $user) {
             session()->flash('error', 'Usuario no encontrado');
@@ -78,12 +78,14 @@ class UsuarioLive extends Component
 
     public function openDeleteModal($id)
     {
+        $this->authorize('usuarios.delete');
         $this->userId = $id;
         $this->modalState['delete'] = true;
     }
 
     public function save()
     {
+        $this->authorize($this->userId ? 'usuarios.update' : 'usuarios.create');
         $rules = [
             'formData.name' => 'required|string|max:255',
             'formData.email' => 'required|email|unique:users,email,' . ($this->userId ?? 'NULL'),
@@ -129,6 +131,7 @@ class UsuarioLive extends Component
 
     public function delete()
     {
+        $this->authorize('usuarios.delete');
         try {
             $user = User::findOrFail($this->userId);
             if ($user->id === Auth::user()->id) {

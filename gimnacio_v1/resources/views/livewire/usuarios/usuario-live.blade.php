@@ -5,9 +5,11 @@
                 <h1 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Usuarios</h1>
                 <p class="text-xs text-zinc-600 dark:text-zinc-400">Administra usuarios y asignación de roles</p>
             </div>
+            @can('usuarios.create')
             <flux:button icon="plus" color="purple" variant="primary" size="xs" wire:click="openCreateModal">
                 Nuevo usuario
             </flux:button>
+            @endcan
         </div>
 
         <div class="flex gap-3 items-center justify-end">
@@ -72,9 +74,13 @@
                                 </td>
                                 <td class="px-4 py-2.5 text-xs">
                                     <div class="flex gap-2">
+                                        @can('usuarios.update')
                                         <flux:button size="xs" variant="ghost" icon="pencil" wire:click="openEditModal({{ $u->id }})" aria-label="Editar">Editar</flux:button>
+                                        @endcan
                                         @if ($u->id !== auth()->id())
+                                            @can('usuarios.delete')
                                             <flux:button size="xs" variant="ghost" color="red" icon="trash" wire:click="openDeleteModal({{ $u->id }})" aria-label="Eliminar">Eliminar</flux:button>
+                                            @endcan
                                         @endif
                                     </div>
                                 </td>
@@ -149,6 +155,7 @@
         </form>
     </flux:modal>
 
+    @can('usuarios.delete')
     <!-- Modal Delete -->
     <flux:modal name="usuario-delete" wire:model="modalState.delete" focusable flyout variant="floating" class="md:w-lg">
         <div class="p-4">
@@ -162,4 +169,5 @@
             </div>
         </div>
     </flux:modal>
+    @endcan
 </div>

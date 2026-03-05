@@ -19,28 +19,28 @@ Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
     // Clientes
-    Route::get('clientes', \App\Livewire\Clientes\ClienteLive::class)->name('clientes.index');
+    Route::get('clientes', \App\Livewire\Clientes\ClienteLive::class)->middleware('permission:clientes.view')->name('clientes.index');
 
     // Membresías
-    Route::get('membresias', \App\Livewire\Membresias\MembresiaLive::class)->name('membresias.index');
+    Route::get('membresias', \App\Livewire\Membresias\MembresiaLive::class)->middleware('permission:membresias.view')->name('membresias.index');
 
     // Matrículas de Clientes (Membresías y Clases)
-    Route::get('cliente-matriculas', \App\Livewire\ClienteMatriculas\ClienteMatriculaLive::class)->name('cliente-matriculas.index');
+    Route::get('cliente-matriculas', \App\Livewire\ClienteMatriculas\ClienteMatriculaLive::class)->middleware('permission:cliente-matriculas.view')->name('cliente-matriculas.index');
 
     // Cajas
-    Route::get('cajas', \App\Livewire\Cajas\CajaLive::class)->name('cajas.index');
+    Route::get('cajas', \App\Livewire\Cajas\CajaLive::class)->middleware('permission:cajas.view')->name('cajas.index');
 
     // Checking - Registro de Ingreso
-    Route::get('checking', \App\Livewire\Checking\CheckingLive::class)->name('checking.index');
+    Route::get('checking', \App\Livewire\Checking\CheckingLive::class)->middleware('permission:checking.view')->name('checking.index');
 
     // Punto de Venta
-    Route::get('pos', \App\Livewire\POS\POSLive::class)->name('pos.index');
+    Route::get('pos', \App\Livewire\POS\POSLive::class)->middleware('permission:pos.view')->name('pos.index');
 
     // Catálogos
-    Route::get('categorias-productos', \App\Livewire\Categorias\CategoriaProductoLive::class)->name('categorias-productos.index');
-    Route::get('productos', \App\Livewire\Productos\ProductoLive::class)->name('productos.index');
-    Route::get('servicios', \App\Livewire\Servicios\ServicioExternoLive::class)->name('servicios.index');
-    Route::get('clases', \App\Livewire\Clases\ClaseLive::class)->name('clases.index');
+    Route::get('categorias-productos', \App\Livewire\Categorias\CategoriaProductoLive::class)->middleware('permission:categorias-productos.view')->name('categorias-productos.index');
+    Route::get('productos', \App\Livewire\Productos\ProductoLive::class)->middleware('permission:productos.view')->name('productos.index');
+    Route::get('servicios', \App\Livewire\Servicios\ServicioExternoLive::class)->middleware('permission:servicios.view')->name('servicios.index');
+    Route::get('clases', \App\Livewire\Clases\ClaseLive::class)->middleware('permission:clases.view')->name('clases.index');
 
     // Reportes (previsualización e impresión/descarga)
     Route::prefix('reportes')->name('reportes.')->group(function () {
@@ -53,37 +53,37 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Gestión Nutricional (módulo unificado: Medidas, Nutrición, Citas, Calendario)
-    Route::get('gestion-nutricional', \App\Livewire\GestionNutricional\GestionNutricionalUnificadoLive::class)->name('gestion-nutricional.index');
-    Route::get('gestion-nutricional/calendario', \App\Livewire\GestionNutricional\CalendarioCitasLive::class)->name('gestion-nutricional.calendario');
-    Route::get('gestion-nutricional/calendario/eventos', function (\Illuminate\Http\Request $request) {
-        $start = $request->get('start', now()->startOfMonth()->toIso8601String());
-        $end = $request->get('end', now()->endOfMonth()->toIso8601String());
-        $service = app(\App\Services\CitaService::class);
-        return response()->json($service->getEventosParaCalendario($start, $end)->values());
-    })->name('gestion-nutricional.calendario.eventos');
-    
-    // Redirecciones para mantener compatibilidad con rutas antiguas
-    Route::redirect('gestion-nutricional/medidas', 'gestion-nutricional', 301);
-    Route::redirect('gestion-nutricional/nutricion', 'gestion-nutricional', 301);
-    Route::redirect('gestion-nutricional/citas', 'gestion-nutricional', 301);
-    Route::redirect('medidas-nutricion', 'gestion-nutricional', 301)->name('medidas-nutricion.index');
-
-    // CRM
-    Route::get('crm/mensajes', \App\Livewire\Crm\MensajesLive::class)->name('crm.mensajes');
-
-    // Administración (super_administrador y administrador)
-    Route::middleware(['role:super_administrador|administrador'])->group(function () {
-        Route::get('usuarios', \App\Livewire\Usuarios\UsuarioLive::class)->name('usuarios.index');
-        Route::get('roles', \App\Livewire\Roles\RolLive::class)->name('roles.index');
+    Route::middleware('permission:gestion-nutricional.view')->group(function () {
+        Route::get('gestion-nutricional', \App\Livewire\GestionNutricional\GestionNutricionalUnificadoLive::class)->name('gestion-nutricional.index');
+        Route::get('gestion-nutricional/calendario', \App\Livewire\GestionNutricional\CalendarioCitasLive::class)->name('gestion-nutricional.calendario');
+        Route::get('gestion-nutricional/calendario/eventos', function (\Illuminate\Http\Request $request) {
+            $start = $request->get('start', now()->startOfMonth()->toIso8601String());
+            $end = $request->get('end', now()->endOfMonth()->toIso8601String());
+            $service = app(\App\Services\CitaService::class);
+            return response()->json($service->getEventosParaCalendario($start, $end)->values());
+        })->name('gestion-nutricional.calendario.eventos');
+        Route::redirect('gestion-nutricional/medidas', 'gestion-nutricional', 301);
+        Route::redirect('gestion-nutricional/nutricion', 'gestion-nutricional', 301);
+        Route::redirect('gestion-nutricional/citas', 'gestion-nutricional', 301);
+        Route::redirect('medidas-nutricion', 'gestion-nutricional', 301)->name('medidas-nutricion.index');
     });
 
+    // CRM
+    Route::get('crm/mensajes', \App\Livewire\Crm\MensajesLive::class)->middleware('permission:crm-mensajes.view')->name('crm.mensajes');
+
+    // Administración (por permiso)
+    Route::get('usuarios', \App\Livewire\Usuarios\UsuarioLive::class)->middleware('permission:usuarios.view')->name('usuarios.index');
+    Route::get('roles', \App\Livewire\Roles\RolLive::class)->middleware('permission:roles.view')->name('roles.index');
+
     // Integración BioTime (ZKTeco)
-    Route::get('biotime', \App\Livewire\Biotime\BiotimeIndexLive::class)->name('biotime.index');
-    Route::get('biotime/config', \App\Livewire\Biotime\BiotimeConfigLive::class)->name('biotime.config');
-    Route::get('biotime/sync', \App\Livewire\Biotime\BiotimeSyncLive::class)->name('biotime.sync');
-    Route::get('biotime/areas', \App\Livewire\Biotime\Area\AreaIndexLive::class)->name('biotime.areas');
-    Route::get('biotime/departments', \App\Livewire\Biotime\Department\DepartmentIndexLive::class)->name('biotime.departments');
-    Route::get('biotime/employees', \App\Livewire\Biotime\Employees\EmployeesIndexLive::class)->name('biotime.employees');
+    Route::middleware('permission:biotime.view')->group(function () {
+        Route::get('biotime', \App\Livewire\Biotime\BiotimeIndexLive::class)->name('biotime.index');
+        Route::get('biotime/config', \App\Livewire\Biotime\BiotimeConfigLive::class)->name('biotime.config');
+        Route::get('biotime/sync', \App\Livewire\Biotime\BiotimeSyncLive::class)->name('biotime.sync');
+        Route::get('biotime/areas', \App\Livewire\Biotime\Area\AreaIndexLive::class)->name('biotime.areas');
+        Route::get('biotime/departments', \App\Livewire\Biotime\Department\DepartmentIndexLive::class)->name('biotime.departments');
+        Route::get('biotime/employees', \App\Livewire\Biotime\Employees\EmployeesIndexLive::class)->name('biotime.employees');
+    });
 
     Volt::route('settings/profile', 'settings.profile')->name('profile.edit');
     Volt::route('settings/password', 'settings.password')->name('user-password.edit');

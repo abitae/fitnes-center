@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="{{ $appearanceClass ?? 'dark' }} {{ $accentClass ?? 'accent-neutral' }}" data-appearance="{{ $appearanceValue ?? 'system' }}" data-accent="{{ $accentValue ?? 'neutral' }}" data-sidebar-bg="{{ $sidebarBgValue ?? 'default' }}" data-header-bg="{{ $headerBgValue ?? 'default' }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="{{ $bodyAppearanceClass ?? 'dark' }} {{ $accentClass ?? 'accent-neutral' }}" data-appearance="{{ $appearanceValue ?? 'system' }}" data-appearance-sidebar="{{ $appearanceSidebarValue ?? 'system' }}" data-appearance-header="{{ $appearanceHeaderValue ?? 'system' }}" data-accent="{{ $accentValue ?? 'neutral' }}" data-sidebar-bg="{{ $sidebarBgValue ?? 'default' }}" data-header-bg="{{ $headerBgValue ?? 'default' }}">
     <head>
         @include('partials.head')
     </head>
     <body class="min-h-screen bg-white dark:bg-zinc-800 antialiased">
-        <flux:sidebar id="app-sidebar" sticky collapsible="mobile" class="{{ $sidebarBgClass ?? 'bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700' }}">
+        <flux:sidebar id="app-sidebar" sticky collapsible="mobile" class="{{ $sidebarAppearanceClass ?? 'dark' }} {{ $sidebarBgClass ?? 'bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700' }}">
             <flux:sidebar.header>
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2 px-2 py-2 min-w-0" wire:navigate>
                     <img src="{{ asset('Open9/logo_completo_sin_fondo.png') }}" alt="{{ config('app.name', 'Open9') }}" class="h-8 max-h-8 w-auto object-contain" />
@@ -21,23 +21,34 @@
                 </flux:sidebar.item>
 
                 <flux:sidebar.group expandable heading="Gestión de Clientes" class="grid" :expanded="request()->routeIs('clientes.*') || request()->routeIs('membresias.*') || request()->routeIs('cliente-matriculas.*') || request()->routeIs('checking.*') || request()->routeIs('clases.*')">
+                    @can('clientes.view')
                     <flux:sidebar.item icon="users" :href="route('clientes.index')" :current="request()->routeIs('clientes.*')" wire:navigate>
                         {{ __('Clientes') }}
                     </flux:sidebar.item>
+                    @endcan
+                    @can('membresias.view')
                     <flux:sidebar.item icon="identification" :href="route('membresias.index')" :current="request()->routeIs('membresias.*')" wire:navigate>
                         {{ __('Membresías') }}
                     </flux:sidebar.item>
+                    @endcan
+                    @can('clases.view')
                     <flux:sidebar.item icon="academic-cap" :href="route('clases.index')" :current="request()->routeIs('clases.*')" wire:navigate>
                         {{ __('Clases') }}
                     </flux:sidebar.item>
+                    @endcan
+                    @can('cliente-matriculas.view')
                     <flux:sidebar.item icon="user-group" :href="route('cliente-matriculas.index')" :current="request()->routeIs('cliente-matriculas.*')" wire:navigate>
                         {{ __('Cliente Matrículas') }}
                     </flux:sidebar.item>
+                    @endcan
+                    @can('checking.view')
                     <flux:sidebar.item icon="check-circle" :href="route('checking.index')" :current="request()->routeIs('checking.*')" wire:navigate>
                         {{ __('Checking') }}
                     </flux:sidebar.item>
+                    @endcan
                 </flux:sidebar.group>
 
+                @can('gestion-nutricional.view')
                 <flux:sidebar.group expandable heading="Gestión Nutricional" class="grid" :expanded="request()->routeIs('gestion-nutricional.*')">
                     <flux:sidebar.item icon="clipboard-document-list" :href="route('gestion-nutricional.index')" :current="request()->routeIs('gestion-nutricional.index')" wire:navigate>
                         {{ __('Gestión Nutricional') }}
@@ -46,6 +57,7 @@
                         {{ __('Calendario') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
+                @endcan
 
                 <flux:sidebar.group expandable heading="CRM" class="grid" :expanded="request()->routeIs('crm.*')">
                     <flux:sidebar.item icon="chat-bubble-left-right" :href="route('crm.mensajes')" :current="request()->routeIs('crm.mensajes')" wire:navigate>
@@ -54,29 +66,40 @@
                 </flux:sidebar.group>
 
                 <flux:sidebar.group expandable heading="Ventas" class="grid" :expanded="request()->routeIs('cajas.*') || request()->routeIs('pos.*')">
+                    @can('cajas.view')
                     <flux:sidebar.item icon="banknotes" :href="route('cajas.index')" :current="request()->routeIs('cajas.*')" wire:navigate>
                         {{ __('Caja') }}
                     </flux:sidebar.item>
+                    @endcan
+                    @can('pos.view')
                     <flux:sidebar.item icon="shopping-cart" :href="route('pos.index')" :current="request()->routeIs('pos.*')" wire:navigate>
                         {{ __('Punto de Venta') }}
                     </flux:sidebar.item>
+                    @endcan
                 </flux:sidebar.group>
 
                 <flux:sidebar.group expandable heading="Productos" class="grid" :expanded="request()->routeIs('categorias-productos.*') || request()->routeIs('productos.*')">
+                    @can('categorias-productos.view')
                     <flux:sidebar.item icon="tag" :href="route('categorias-productos.index')" :current="request()->routeIs('categorias-productos.*')" wire:navigate>
                         {{ __('Categorías Productos') }}
                     </flux:sidebar.item>
+                    @endcan
+                    @can('productos.view')
                     <flux:sidebar.item icon="cube" :href="route('productos.index')" :current="request()->routeIs('productos.*')" wire:navigate>
                         {{ __('Productos') }}
                     </flux:sidebar.item>
+                    @endcan
                 </flux:sidebar.group>
 
+                @can('servicios.view')
                 <flux:sidebar.group expandable heading="Servicios" class="grid" :expanded="request()->routeIs('servicios.*')">
                     <flux:sidebar.item icon="wrench-screwdriver" :href="route('servicios.index')" :current="request()->routeIs('servicios.*')" wire:navigate>
                         {{ __('Servicios') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
+                @endcan
 
+                @can('biotime.view')
                 <flux:sidebar.group expandable heading="Integración BioTime" class="grid" :expanded="request()->routeIs('biotime.*')">
                     <flux:sidebar.item icon="signal" :href="route('biotime.index')" :current="request()->routeIs('biotime.index')" wire:navigate>
                         {{ __('BioTime Dashboard') }}
@@ -97,15 +120,20 @@
                         {{ __('Empleados BioTime') }}
                     </flux:sidebar.item>
                 </flux:sidebar.group>
+                @endcan
 
-                @if(auth()->user()->hasAnyRole(['super_administrador', 'administrador']))
+                @if(auth()->user()->can('usuarios.view') || auth()->user()->can('roles.view'))
                 <flux:sidebar.group expandable heading="Administración" class="grid" :expanded="request()->routeIs('usuarios.*') || request()->routeIs('roles.*')">
+                    @can('usuarios.view')
                     <flux:sidebar.item icon="users" :href="route('usuarios.index')" :current="request()->routeIs('usuarios.*')" wire:navigate>
                         {{ __('Usuarios') }}
                     </flux:sidebar.item>
+                    @endcan
+                    @can('roles.view')
                     <flux:sidebar.item icon="shield-check" :href="route('roles.index')" :current="request()->routeIs('roles.*')" wire:navigate>
                         {{ __('Roles') }}
                     </flux:sidebar.item>
+                    @endcan
                 </flux:sidebar.group>
                 @endif
             </flux:sidebar.nav>
@@ -162,13 +190,11 @@
             </flux:dropdown>
         </flux:sidebar>
 
-        <flux:header id="app-header" class="block! {{ $headerBgClass ?? 'bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700' }}">
+        <flux:header id="app-header" class="block! {{ $headerAppearanceClass ?? 'dark' }} {{ $headerBgClass ?? 'bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700' }}">
             <flux:navbar class="lg:hidden w-full">
                 <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
                 <flux:spacer />
-
-                <livewire:theme-switcher />
 
                 <flux:dropdown position="top" align="start">
                     <flux:profile 
@@ -248,44 +274,77 @@
                     violet: 'bg-white lg:bg-violet-50 dark:bg-violet-950 border-b border-violet-200 dark:border-violet-800',
                     indigo: 'bg-white lg:bg-indigo-50 dark:bg-indigo-950 border-b border-indigo-200 dark:border-indigo-800'
                 };
+                function resolveMode(val) {
+                    return val === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : val;
+                }
                 function applyAppearance(params) {
                     var appearance = params.appearance || 'system';
+                    var appearanceSidebar = params.appearance_sidebar || 'system';
+                    var appearanceHeader = params.appearance_header || 'system';
                     var accent = params.accent || 'neutral';
                     var sidebarBg = params.sidebar_bg || 'default';
                     var headerBg = params.header_bg || 'default';
                     var html = document.documentElement;
                     html.classList.remove('light', 'dark');
-                    var appearanceClass = appearance === 'system'
-                        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-                        : appearance;
-                    html.classList.add(appearanceClass);
+                    html.classList.add(resolveMode(appearance));
                     html.setAttribute('data-appearance', appearance);
+                    html.setAttribute('data-appearance-sidebar', appearanceSidebar);
+                    html.setAttribute('data-appearance-header', appearanceHeader);
                     html.classList.remove('accent-neutral', 'accent-blue', 'accent-green', 'accent-red');
                     html.classList.add('accent-' + accent);
                     html.setAttribute('data-accent', accent);
                     html.setAttribute('data-sidebar-bg', sidebarBg);
                     html.setAttribute('data-header-bg', headerBg);
+                    var sidebarMode = resolveMode(appearanceSidebar);
                     var sidebarEl = document.getElementById('app-sidebar');
                     if (sidebarEl) {
-                        var base = sidebarEl.className.replace(/\bbg-\w+(-\d+)?|dark:bg-\w+(-\d+)?|border-r|border-\w+(-\d+)?|dark:border-\w+(-\d+)?/g, '').replace(/\s+/g, ' ').trim();
-                        sidebarEl.className = (base + ' ' + (sidebarBgClasses[sidebarBg] || sidebarBgClasses.default)).trim();
+                        var base = sidebarEl.className.replace(/\b(light|dark)\b|\bbg-\w+(-\d+)?|dark:bg-\w+(-\d+)?|border-r|border-\w+(-\d+)?|dark:border-\w+(-\d+)?/g, '').replace(/\s+/g, ' ').trim();
+                        sidebarEl.className = (base + ' ' + sidebarMode + ' ' + (sidebarBgClasses[sidebarBg] || sidebarBgClasses.default)).trim();
                     }
+                    var headerMode = resolveMode(appearanceHeader);
                     var headerEl = document.getElementById('app-header');
                     if (headerEl) {
-                        var baseH = headerEl.className.replace(/\bbg-\w+(-\d+)?|dark:bg-\w+(-\d+)?|lg:bg-\w+(-\d+)?|border-b|border-\w+(-\d+)?|dark:border-\w+(-\d+)?/g, '').replace(/\s+/g, ' ').trim();
-                        headerEl.className = (baseH + ' ' + (headerBgClasses[headerBg] || headerBgClasses.default)).trim();
+                        var baseH = headerEl.className.replace(/\b(light|dark)\b|\bbg-\w+(-\d+)?|dark:bg-\w+(-\d+)?|lg:bg-\w+(-\d+)?|border-b|border-\w+(-\d+)?|dark:border-\w+(-\d+)?/g, '').replace(/\s+/g, ' ').trim();
+                        headerEl.className = (baseH + ' ' + headerMode + ' ' + (headerBgClasses[headerBg] || headerBgClasses.default)).trim();
                     }
                 }
                 document.addEventListener('livewire:init', function() {
-                    var initial = document.documentElement.getAttribute('data-appearance');
+                    var appearance = document.documentElement.getAttribute('data-appearance');
+                    var appearanceSidebar = document.documentElement.getAttribute('data-appearance-sidebar');
+                    var appearanceHeader = document.documentElement.getAttribute('data-appearance-header');
                     var accent = document.documentElement.getAttribute('data-accent') || 'neutral';
                     var sidebarBg = document.documentElement.getAttribute('data-sidebar-bg') || 'default';
                     var headerBg = document.documentElement.getAttribute('data-header-bg') || 'default';
-                    if (initial) applyAppearance({ appearance: initial, accent: accent, sidebar_bg: sidebarBg, header_bg: headerBg });
+                    applyAppearance({ appearance: appearance || 'system', appearance_sidebar: appearanceSidebar || 'system', appearance_header: appearanceHeader || 'system', accent: accent, sidebar_bg: sidebarBg, header_bg: headerBg });
                     Livewire.on('appearance-updated', applyAppearance);
                 });
             })();
         </script>
+        @php
+            $flashType = null;
+            $flashMessage = null;
+            if (session()->has('success')) { $flashType = 'success'; $flashMessage = session('success'); }
+            elseif (session()->has('error')) { $flashType = 'error'; $flashMessage = session('error'); }
+            elseif (session()->has('warning')) { $flashType = 'warning'; $flashMessage = session('warning'); }
+            elseif (session()->has('info')) { $flashType = 'info'; $flashMessage = session('info'); }
+        @endphp
+        @if ($flashType)
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (typeof window.Swal === 'undefined') return;
+                window.Swal.fire({
+                    icon: @json($flashType),
+                    title: @json($flashType === 'success' ? 'Éxito' : ($flashType === 'error' ? 'Error' : ($flashType === 'warning' ? 'Aviso' : 'Información'))),
+                    text: @json($flashMessage),
+                    toast: true,
+                    position: 'top-end',
+                    timer: 4500,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
+            });
+        </script>
+        @endif
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     </body>
 </html>

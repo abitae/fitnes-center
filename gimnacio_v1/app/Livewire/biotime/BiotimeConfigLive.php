@@ -33,6 +33,7 @@ class BiotimeConfigLive extends Component
 
     public function mount()
     {
+        $this->authorize('biotime.view');
         $setting = BiotimeSetting::getInstance();
         if ($setting) {
             $this->base_url = $setting->base_url ?? '';
@@ -62,6 +63,7 @@ class BiotimeConfigLive extends Component
 
     public function save()
     {
+        $this->authorize('biotime.update');
         $this->validate();
 
         $data = [

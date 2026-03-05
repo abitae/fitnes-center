@@ -264,6 +264,7 @@
                         <div class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-center dark:border-amber-700 dark:bg-amber-900/20">
                             <p class="text-xs font-medium text-amber-800 dark:text-amber-200">Ingreso en curso desde {{ $ingresoEnCurso->fecha_hora_ingreso->format('d/m/Y H:i') }}</p>
                         </div>
+                        @can('checking.update')
                         <flux:button
                             icon="clock"
                             color="amber"
@@ -280,9 +281,11 @@
                                 </span>
                             </span>
                         </flux:button>
+                        @endcan
                     </div>
                 @elseif ($membresiaActiva && (empty($validacionAcceso) || $validacionAcceso['tiene_acceso']))
                     <div class="flex-shrink-0">
+                        @can('checking.create')
                         <flux:button
                             icon="check-circle"
                             color="green"
@@ -299,6 +302,7 @@
                                 </span>
                             </span>
                         </flux:button>
+                        @endcan
                     </div>
                 @endif
             @else

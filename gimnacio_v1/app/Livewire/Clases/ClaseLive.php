@@ -50,6 +50,7 @@ class ClaseLive extends Component
 
     public function mount()
     {
+        $this->authorize('clases.view');
         $this->resetPage();
     }
 
@@ -88,12 +89,14 @@ class ClaseLive extends Component
 
     public function openCreateModal()
     {
+        $this->authorize('clases.create');
         $this->resetForm();
         $this->modalState['create'] = true;
     }
 
     public function openEditModal($id)
     {
+        $this->authorize('clases.update');
         $clase = $this->service->find($id);
         if (!$clase) {
             session()->flash('error', 'Clase no encontrada');
@@ -107,12 +110,14 @@ class ClaseLive extends Component
 
     public function openDeleteModal($id)
     {
+        $this->authorize('clases.delete');
         $this->claseId = $id;
         $this->modalState['delete'] = true;
     }
 
     public function save()
     {
+        $this->authorize($this->claseId ? 'clases.update' : 'clases.create');
         try {
             $data = $this->mapFormToData();
 
@@ -150,6 +155,7 @@ class ClaseLive extends Component
 
     public function delete()
     {
+        $this->authorize('clases.delete');
         try {
             $this->service->delete($this->claseId);
             session()->flash('success', 'Clase eliminada exitosamente.');

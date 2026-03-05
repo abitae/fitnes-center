@@ -7,11 +7,13 @@
                 <p class="text-xs text-zinc-600 dark:text-zinc-400">Gestiona las membresías y clases asignadas a los clientes</p>
             </div>
             <div class="flex gap-2">
+                @can('clientes.create')
                 <a href="{{ route('clientes.index') }}" wire:navigate>
                     <flux:button icon="plus" color="blue" variant="primary" size="xs" aria-label="Crear nuevo cliente">
                         Nuevo Cliente
                     </flux:button>
                 </a>
+                @endcan
             </div>
         </div>
 
@@ -127,11 +129,13 @@
 
                     <!-- Filters and Actions -->
                     <div class="flex gap-3 items-center justify-between">
+                        @can('cliente-matriculas.create')
                         <flux:button icon="plus" color="purple" variant="primary" size="xs" wire:click="openCreateModal"
                             wire:loading.attr="disabled" wire:target="openCreateModal" aria-label="Nueva matrícula">
                             <span wire:loading.remove wire:target="openCreateModal">Agregar {{ $activeTab === 'membresias' ? 'Membresía' : 'Clase' }}</span>
                             <span wire:loading wire:target="openCreateModal">Cargando...</span>
                         </flux:button>
+                        @endcan
 
                         <div class="flex gap-3 items-center">
                             <div class="w-32">
@@ -243,12 +247,16 @@
                                             <td class="px-4 py-2.5 text-xs">
                                                 <div class="flex gap-1">
                                                     @if ($matricula->estado !== 'completada')
+                                                        @can('cliente-matriculas.update')
                                                         <flux:button variant="ghost" size="xs" icon="pencil"
                                                             wire:click="openEditModal({{ $matricula->id }})" aria-label="Editar">
                                                         </flux:button>
+                                                        @endcan
+                                                        @can('cliente-matriculas.delete')
                                                         <flux:button variant="ghost" size="xs" icon="trash" color="red"
                                                             wire:click="openDeleteModal({{ $matricula->id }})" aria-label="Eliminar">
                                                         </flux:button>
+                                                        @endcan
                                                     @endif
                                                 </div>
                                             </td>
@@ -533,6 +541,7 @@
         </form>
     </flux:modal>
 
+    @can('cliente-matriculas.delete')
     <!-- Delete Modal -->
     <flux:modal name="delete-modal" wire:model="modalState.delete" focusable class="md:w-lg">
         <div class="p-4">
@@ -557,5 +566,6 @@
             </flux:button>
         </div>
     </flux:modal>
+    @endcan
 
 </div>

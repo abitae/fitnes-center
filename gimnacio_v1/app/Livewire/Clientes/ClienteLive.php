@@ -81,6 +81,7 @@ class ClienteLive extends Component
 
     public function mount()
     {
+        $this->authorize('clientes.view');
         $this->resetPage();
     }
 
@@ -105,12 +106,14 @@ class ClienteLive extends Component
 
     public function openCreateModal()
     {
+        $this->authorize('clientes.create');
         $this->resetForm();
         $this->modalState['create'] = true;
     }
 
     public function openEditModal($id)
     {
+        $this->authorize('clientes.update');
         $cliente = $this->service->find($id);
 
         if (!$cliente) {
@@ -125,12 +128,14 @@ class ClienteLive extends Component
 
     public function openDeleteModal($id)
     {
+        $this->authorize('clientes.delete');
         $this->clienteId = $id;
         $this->modalState['delete'] = true;
     }
 
     public function openPhotoModal($id = null)
     {
+        $this->authorize('clientes.update');
         $this->photoClienteId = $id;
         $this->foto = null;
         $this->capturedPhotoUrl = null;
@@ -216,6 +221,7 @@ class ClienteLive extends Component
 
     public function uploadPhoto()
     {
+        $this->authorize('clientes.update');
         try {
             $path = null;
 
@@ -291,6 +297,7 @@ class ClienteLive extends Component
 
     public function save()
     {
+        $this->authorize($this->clienteId ? 'clientes.update' : 'clientes.create');
         try {
             $data = $this->mapFormToData();
 
@@ -322,6 +329,7 @@ class ClienteLive extends Component
 
     public function delete()
     {
+        $this->authorize('clientes.delete');
         try {
             $this->service->delete($this->clienteId);
             session()->flash('success', 'Cliente eliminado correctamente');

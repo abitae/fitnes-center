@@ -73,6 +73,7 @@ class ClienteMatriculaLive extends Component
 
     public function mount()
     {
+        $this->authorize('cliente-matriculas.view');
         $this->formData['asesor_id'] = auth()->id();
         $this->clientes = collect([]);
     }
@@ -154,6 +155,7 @@ class ClienteMatriculaLive extends Component
 
     public function openCreateModal()
     {
+        $this->authorize('cliente-matriculas.create');
         if (!$this->selectedClienteId) {
             session()->flash('error', 'Debes seleccionar un cliente primero');
             return;
@@ -172,6 +174,7 @@ class ClienteMatriculaLive extends Component
 
     public function openEditModal($id)
     {
+        $this->authorize('cliente-matriculas.update');
         $clienteMatricula = $this->service->find($id);
 
         if (!$clienteMatricula) {
@@ -186,6 +189,7 @@ class ClienteMatriculaLive extends Component
 
     public function openDeleteModal($id)
     {
+        $this->authorize('cliente-matriculas.delete');
         $this->clienteMatriculaId = $id;
         $this->modalState['delete'] = true;
     }
@@ -196,6 +200,7 @@ class ClienteMatriculaLive extends Component
      */
     public function openRenovarMembresia(int $clienteId, int $matriculaId): void
     {
+        $this->authorize('cliente-matriculas.create');
         $matricula = $this->service->find($matriculaId);
         if (!$matricula || $matricula->tipo !== 'membresia' || (int) $matricula->cliente_id !== $clienteId) {
             session()->flash('error', 'Matrícula no encontrada o no es una membresía');
@@ -308,6 +313,7 @@ class ClienteMatriculaLive extends Component
 
     public function save()
     {
+        $this->authorize($this->clienteMatriculaId ? 'cliente-matriculas.update' : 'cliente-matriculas.create');
         try {
             if (!$this->selectedClienteId) {
                 session()->flash('error', 'Debes seleccionar un cliente primero');
@@ -366,6 +372,7 @@ class ClienteMatriculaLive extends Component
 
     public function delete()
     {
+        $this->authorize('cliente-matriculas.delete');
         try {
             $this->service->delete($this->clienteMatriculaId);
             session()->flash('success', 'Matrícula eliminada correctamente');

@@ -45,8 +45,12 @@ class AppServiceProvider extends ServiceProvider
         ];
 
         View::composer('components.layouts.app.sidebar', function ($view) use ($sidebarBgClasses, $headerBgClasses) {
-            $appearanceClass = 'dark';
+            $bodyAppearanceClass = 'dark';
             $appearanceValue = 'system';
+            $sidebarAppearanceClass = 'dark';
+            $appearanceSidebarValue = 'system';
+            $headerAppearanceClass = 'dark';
+            $appearanceHeaderValue = 'system';
             $accentClass = 'accent-neutral';
             $sidebarBgClass = $sidebarBgClasses['default'];
             $headerBgClass = $headerBgClasses['default'];
@@ -56,9 +60,12 @@ class AppServiceProvider extends ServiceProvider
 
             if (Auth::check()) {
                 $user = Auth::user();
-                $pref = $user->appearance ?? 'system';
-                $appearanceValue = $pref;
-                $appearanceClass = $pref === 'system' ? 'dark' : $pref;
+                $appearanceValue = $user->appearance ?? 'system';
+                $bodyAppearanceClass = $appearanceValue === 'system' ? 'dark' : $appearanceValue;
+                $appearanceSidebarValue = $user->appearance_sidebar ?? 'system';
+                $sidebarAppearanceClass = $appearanceSidebarValue === 'system' ? 'dark' : $appearanceSidebarValue;
+                $appearanceHeaderValue = $user->appearance_header ?? 'system';
+                $headerAppearanceClass = $appearanceHeaderValue === 'system' ? 'dark' : $appearanceHeaderValue;
                 $accentValue = $user->accent ?? 'neutral';
                 $accentClass = 'accent-' . $accentValue;
                 $sidebarBgValue = $user->sidebar_bg ?? 'default';
@@ -67,8 +74,12 @@ class AppServiceProvider extends ServiceProvider
                 $headerBgClass = $headerBgClasses[$headerBgValue] ?? $headerBgClasses['default'];
             }
 
-            $view->with('appearanceClass', $appearanceClass);
+            $view->with('bodyAppearanceClass', $bodyAppearanceClass);
             $view->with('appearanceValue', $appearanceValue);
+            $view->with('sidebarAppearanceClass', $sidebarAppearanceClass);
+            $view->with('appearanceSidebarValue', $appearanceSidebarValue);
+            $view->with('headerAppearanceClass', $headerAppearanceClass);
+            $view->with('appearanceHeaderValue', $appearanceHeaderValue);
             $view->with('accentClass', $accentClass);
             $view->with('accentValue', $accentValue);
             $view->with('sidebarBgClass', $sidebarBgClass);

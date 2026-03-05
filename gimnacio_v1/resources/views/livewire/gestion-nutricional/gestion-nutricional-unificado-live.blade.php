@@ -70,6 +70,7 @@
                             <div class="flex items-center justify-between">
                                 <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Ficha de Salud</h2>
                                 <div class="flex gap-2">
+                                    @can('gestion-nutricional.create')
                                     <flux:button icon="plus" color="purple" variant="primary" size="xs"
                                         wire:click="openCreateEvaluacionModal" wire:loading.attr="disabled"
                                         wire:target="openCreateEvaluacionModal" aria-label="Nueva evaluación">
@@ -77,7 +78,7 @@
                                             evaluación</span>
                                         <span wire:loading wire:target="openCreateEvaluacionModal">Cargando...</span>
                                     </flux:button>
-
+                                    @endcan
                                 </div>
                             </div>
                             @if ($ultimaEvaluacion)
@@ -363,14 +364,18 @@
                                                                     {{ $evaluacion->nutricionista->name ?? '-' }}</td>
                                                                 <td class="px-4 py-2.5">
                                                                     <div class="flex gap-1">
+                                                                        @can('gestion-nutricional.update')
                                                                         <flux:button variant="ghost" size="xs"
                                                                             icon="pencil"
                                                                             wire:click="openEditEvaluacionModal({{ $evaluacion->id }})"
                                                                             aria-label="Editar" />
+                                                                        @endcan
+                                                                        @can('gestion-nutricional.delete')
                                                                         <flux:button variant="ghost" size="xs"
                                                                             icon="trash" color="red"
                                                                             wire:click="openDeleteEvaluacionModal({{ $evaluacion->id }})"
                                                                             aria-label="Eliminar" />
+                                                                        @endcan
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -396,9 +401,11 @@
                                     <div class="flex flex-col items-center justify-center text-center">
                                         <p class="text-sm text-zinc-500 dark:text-zinc-400">No hay evaluaciones
                                             registradas para este cliente</p>
+                                        @can('gestion-nutricional.create')
                                         <flux:button icon="plus" color="purple" variant="primary" size="xs"
                                             wire:click="openCreateEvaluacionModal" class="mt-4">Crear Primera
                                             Evaluación</flux:button>
+                                        @endcan
                                     </div>
                                 </div>
                             @endif
@@ -411,8 +418,10 @@
                             <div class="flex items-center justify-between">
                                 <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Seguimiento
                                     Nutricional</h2>
+                                @can('gestion-nutricional.create')
                                 <flux:button icon="plus" color="purple" variant="primary" size="xs"
                                     wire:click="openCreateNutricionModal">Nuevo seguimiento</flux:button>
+                                @endcan
                             </div>
                             <div class="flex gap-3 items-center justify-end">
                                 <select wire:model.live="tipoFilter"
@@ -471,13 +480,17 @@
                                                         class="inline-flex rounded-full px-2 py-0.5 text-xs {{ $s->estado === 'activo' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-400' }}">{{ $s->estado }}</span>
                                                 </td>
                                                 <td class="px-4 py-2.5 text-right">
+                                                    @can('gestion-nutricional.update')
                                                     <flux:button variant="ghost" size="xs" icon="pencil"
                                                         wire:click="openEditNutricionModal({{ $s->id }})"
                                                         aria-label="Editar" />
+                                                    @endcan
+                                                    @can('gestion-nutricional.delete')
                                                     <flux:button variant="ghost" size="xs" icon="trash"
                                                         color="red"
                                                         wire:click="openDeleteNutricionModal({{ $s->id }})"
                                                         aria-label="Eliminar" />
+                                                    @endcan
                                                 </td>
                                             </tr>
                                         @empty
@@ -502,8 +515,10 @@
                             <div class="flex items-center justify-between">
                                 <h2 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Reserva de Citas
                                 </h2>
+                                @can('gestion-nutricional.create')
                                 <flux:button icon="plus" color="purple" variant="primary" size="xs"
                                     wire:click="openCreateCitaModal">Nueva cita</flux:button>
+                                @endcan
                             </div>
                             <div class="flex gap-3 items-center justify-end">
                                 <select wire:model.live="tipoFilter"
@@ -576,6 +591,7 @@
                                                     ">{{ ucfirst(str_replace('_', ' ', $cita->estado)) }}</span>
                                                 </td>
                                                 <td class="px-4 py-2.5 text-right">
+                                                    @can('gestion-nutricional.update')
                                                     @if (in_array($cita->estado, ['programada', 'confirmada', 'en_curso']))
                                                         <flux:button variant="ghost" size="xs" icon="x-mark"
                                                             color="red"
@@ -585,10 +601,13 @@
                                                     <flux:button variant="ghost" size="xs" icon="pencil"
                                                         wire:click="openEditCitaModal({{ $cita->id }})"
                                                         aria-label="Editar" />
+                                                    @endcan
+                                                    @can('gestion-nutricional.delete')
                                                     <flux:button variant="ghost" size="xs" icon="trash"
                                                         color="red"
                                                         wire:click="openDeleteCitaModal({{ $cita->id }})"
                                                         aria-label="Eliminar" />
+                                                    @endcan
                                                 </td>
                                             </tr>
                                         @empty

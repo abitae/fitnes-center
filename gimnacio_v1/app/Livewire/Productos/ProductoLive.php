@@ -46,6 +46,7 @@ class ProductoLive extends Component
 
     public function mount()
     {
+        $this->authorize('productos.view');
         $this->resetPage();
     }
 
@@ -56,12 +57,14 @@ class ProductoLive extends Component
 
     public function openCreateModal()
     {
+        $this->authorize('productos.create');
         $this->resetForm();
         $this->modalState['create'] = true;
     }
 
     public function openEditModal($id)
     {
+        $this->authorize('productos.update');
         $producto = $this->service->find($id);
         if (!$producto) {
             session()->flash('error', 'Producto no encontrado');
@@ -86,6 +89,7 @@ class ProductoLive extends Component
 
     public function openImageModal($id)
     {
+        $this->authorize('productos.update');
         $this->imageProductoId = $id;
         $this->imagen = null;
         
@@ -97,6 +101,7 @@ class ProductoLive extends Component
 
     public function uploadImage()
     {
+        $this->authorize('productos.update');
         try {
             $this->validate([
                 'imagen' => [
@@ -143,6 +148,7 @@ class ProductoLive extends Component
 
     public function save()
     {
+        $this->authorize($this->productoId ? 'productos.update' : 'productos.create');
         try {
             if ($this->productoId) {
                 $this->service->update($this->productoId, $this->formData);
@@ -160,6 +166,7 @@ class ProductoLive extends Component
 
     public function delete()
     {
+        $this->authorize('productos.delete');
         try {
             $this->service->delete($this->productoId);
             session()->flash('success', 'Producto eliminado exitosamente.');

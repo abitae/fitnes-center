@@ -31,16 +31,87 @@ class RoleSeeder extends Seeder
             Role::firstOrCreate(['name' => $roleName, 'guard_name' => $guard]);
         }
 
-        // Permisos
+        // Permisos legacy (se mantienen por compatibilidad)
         Permission::firstOrCreate(['name' => 'manage-users', 'guard_name' => $guard]);
         Permission::firstOrCreate(['name' => 'manage-roles', 'guard_name' => $guard]);
 
-        // Super administrador y administrador tienen gestión de usuarios y roles
+        // Permisos CRUD por módulo: {recurso}.view, .create, .update, .delete
+        $resources = [
+            'clientes',
+            'membresias',
+            'cliente-matriculas',
+            'clases',
+            'cliente-membresias',
+            'cajas',
+            'checking',
+            'pos',
+            'categorias-productos',
+            'productos',
+            'servicios',
+            'gestion-nutricional',
+            'crm-mensajes',
+            'usuarios',
+            'roles',
+            'biotime',
+        ];
+        $actions = ['view', 'create', 'update', 'delete'];
+        $allCrudPermissions = [];
+        foreach ($resources as $resource) {
+            foreach ($actions as $action) {
+                $name = "{$resource}.{$action}";
+                Permission::firstOrCreate(['name' => $name, 'guard_name' => $guard]);
+                $allCrudPermissions[] = $name;
+            }
+        }
+
+        // Super administrador y administrador tienen todos los permisos
         $superAdmin = Role::findByName('super_administrador', $guard);
-        $superAdmin->givePermissionTo(['manage-users', 'manage-roles']);
+        $superAdmin->givePermissionTo(array_merge(['manage-users', 'manage-roles'], $allCrudPermissions));
 
         $admin = Role::findByName('administrador', $guard);
-        $admin->givePermissionTo(['manage-users', 'manage-roles']);
+        $admin->givePermissionTo(array_merge(['manage-users', 'manage-roles'], $allCrudPermissions));
+
+        // Trainer: clientes (ver/editar), clases (ver), gestión nutricional (completo), cliente-matrículas (ver)
+        $trainer = Role::findByName('trainer', $guard);
+        $trainer->syncPermissions([
+            'clientes.view', 'clientes.update',
+            'clases.view',
+            'cliente-matriculas.view',
+            'gestion-nutricional.view', 'gestion-nutricional.create', 'gestion-nutricional.update', 'gestion-nutricional.delete',
+            'checking.view', 'checking.create', 'checking.update',
+        ]);
+
+        // Caja: cajas y POS (ver, crear, actualizar)
+        $caja = Role::findByName('caja', $guard);
+        $caja->syncPermissions([
+            'cajas.view', 'cajas.create', 'cajas.update',
+            'pos.view', 'pos.create',
+        ]);
+
+        // Vendedor: POS, productos y categorías (ver/crear/actualizar), clientes (ver)
+        $vendedor = Role::findByName('vendedor', $guard);
+        $vendedor->syncPermissions([
+            'pos.view', 'pos.create',
+            'productos.view', 'productos.create', 'productos.update',
+            'categorias-productos.view', 'categorias-productos.create', 'categorias-productos.update',
+            'clientes.view', 'membresias.view',
+        ]);
+
+        // Cafetín: productos, categorías, POS (ver/crear/actualizar)
+        $cafetin = Role::findByName('cafetin', $guard);
+        $cafetin->syncPermissions([
+            'pos.view', 'pos.create',
+            'productos.view', 'productos.create', 'productos.update',
+            'categorias-productos.view', 'categorias-productos.update',
+        ]);
+
+        // Nutricionista: gestión nutricional completo, clientes (ver), CRM mensajes (ver/crear)
+        $nutricionista = Role::findByName('nutricionista', $guard);
+        $nutricionista->syncPermissions([
+            'gestion-nutricional.view', 'gestion-nutricional.create', 'gestion-nutricional.update', 'gestion-nutricional.delete',
+            'clientes.view',
+            'crm-mensajes.view', 'crm-mensajes.create',
+        ]);
 
         // Usuario inicial como super administrador
         $firstUser = User::where('email', 'abel.arana@hotmail.com')->first();

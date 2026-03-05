@@ -15,9 +15,11 @@
                     class="rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white hover:bg-white/20">
                     Dashboard
                 </a>
+                @can('biotime.create')
                 <flux:button variant="primary" class="bg-white text-purple-600 hover:bg-white/90" wire:click="openCreateModal">
                     Nuevo departamento
                 </flux:button>
+                @endcan
             </div>
         </div>
     </div>
@@ -91,8 +93,12 @@
                             <td class="px-4 py-3 text-zinc-600 dark:text-zinc-400">{{ $dept['parent_dept'] ?? '-' }}</td>
                             <td class="px-4 py-3 text-zinc-600 dark:text-zinc-400">{{ $companyName }}</td>
                             <td class="px-4 py-3 text-right">
+                                @can('biotime.update')
                                 <flux:button size="xs" variant="ghost" wire:click="openEditModal({{ $dept['id'] ?? 0 }})">Editar</flux:button>
+                                @endcan
+                                @can('biotime.delete')
                                 <flux:button size="xs" variant="ghost" color="red" wire:click="confirmDelete({{ $dept['id'] ?? 0 }})">Eliminar</flux:button>
+                                @endcan
                             </td>
                         </tr>
                     @empty

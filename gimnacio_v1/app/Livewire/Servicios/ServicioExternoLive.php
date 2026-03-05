@@ -38,17 +38,20 @@ class ServicioExternoLive extends Component
 
     public function mount()
     {
+        $this->authorize('servicios.view');
         $this->resetPage();
     }
 
     public function openCreateModal()
     {
+        $this->authorize('servicios.create');
         $this->resetForm();
         $this->modalState['create'] = true;
     }
 
     public function openEditModal($id)
     {
+        $this->authorize('servicios.update');
         $servicio = $this->service->find($id);
         if (!$servicio) {
             session()->flash('error', 'Servicio no encontrado');
@@ -70,6 +73,7 @@ class ServicioExternoLive extends Component
 
     public function save()
     {
+        $this->authorize($this->servicioId ? 'servicios.update' : 'servicios.create');
         try {
             if ($this->servicioId) {
                 $this->service->update($this->servicioId, $this->formData);
@@ -87,6 +91,7 @@ class ServicioExternoLive extends Component
 
     public function delete()
     {
+        $this->authorize('servicios.delete');
         try {
             $this->service->delete($this->servicioId);
             session()->flash('success', 'Servicio eliminado exitosamente.');

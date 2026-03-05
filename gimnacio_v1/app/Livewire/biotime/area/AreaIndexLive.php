@@ -60,6 +60,7 @@ class AreaIndexLive extends Component
 
     public function mount()
     {
+        $this->authorize('biotime.view');
         $this->loadCompanies();
         $this->loadAreas();
     }
@@ -157,6 +158,7 @@ class AreaIndexLive extends Component
 
     public function openCreateModal()
     {
+        $this->authorize('biotime.create');
         $this->editingId = null;
         $this->formAreaCode = '';
         $this->formAreaName = '';
@@ -169,6 +171,7 @@ class AreaIndexLive extends Component
 
     public function openEditModal(int $id)
     {
+        $this->authorize('biotime.update');
         try {
             $area = $this->client->getArea($id);
             $this->editingId = $id;
@@ -224,6 +227,7 @@ class AreaIndexLive extends Component
 
     public function saveArea()
     {
+        $this->authorize($this->editingId ? 'biotime.update' : 'biotime.create');
         $this->validate([
             'formAreaCode' => ['required', 'string', 'max:255'],
             'formAreaName' => ['required', 'string', 'max:255'],
@@ -276,6 +280,7 @@ class AreaIndexLive extends Component
 
     public function deleteArea()
     {
+        $this->authorize('biotime.delete');
         if ($this->deleteId === null) {
             return;
         }

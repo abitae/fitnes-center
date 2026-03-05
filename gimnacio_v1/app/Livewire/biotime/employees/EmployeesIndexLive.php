@@ -28,7 +28,8 @@ class EmployeesIndexLive extends Component
 
     public $confirmSuspendId = null;
 
-    public $confirmSuspendMasivo = false;
+    /** Si true, se muestra el modal de "Suspender todos los inactivos". */
+    public $showSuspendMasivoModal = false;
 
     protected $queryString = [
         'tab' => ['except' => 'activos'],
@@ -44,6 +45,11 @@ class EmployeesIndexLive extends Component
     public function boot(BiotimeApiClient $client)
     {
         $this->client = $client;
+    }
+
+    public function mount()
+    {
+        $this->authorize('biotime.view');
     }
 
     public function switchTab(string $tab)
@@ -89,7 +95,7 @@ class EmployeesIndexLive extends Component
     {
         $query = Cliente::query()
             ->where('estado_cliente', 'activo')
-            ->select(['id', 'nombres', 'apellidos', 'numero_documento', 'biotime_state', 'biotime_update']);
+            ->select(['id', 'nombres', 'apellidos', 'numero_documento', 'estado_cliente', 'biotime_state', 'biotime_update']);
         $this->applySearch($query, $this->searchActivos);
         $query->orderBy('nombres');
 
@@ -100,7 +106,7 @@ class EmployeesIndexLive extends Component
     {
         $query = Cliente::query()
             ->where('estado_cliente', 'inactivo')
-            ->select(['id', 'nombres', 'apellidos', 'numero_documento']);
+            ->select(['id', 'nombres', 'apellidos', 'numero_documento', 'estado_cliente', 'biotime_state']);
         $this->applySearch($query, $this->searchInactivos);
         $query->orderBy('nombres');
 
@@ -111,7 +117,7 @@ class EmployeesIndexLive extends Component
     {
         $query = Cliente::query()
             ->where('estado_cliente', 'suspendido')
-            ->select(['id', 'nombres', 'apellidos', 'numero_documento']);
+            ->select(['id', 'nombres', 'apellidos', 'numero_documento', 'estado_cliente', 'biotime_state']);
         $this->applySearch($query, $this->searchSuspendidos);
         $query->orderBy('nombres');
 
@@ -135,6 +141,7 @@ class EmployeesIndexLive extends Component
      */
     public function suspendCliente(int $clienteId)
     {
+        $this->authorize('biotime.delete');
         $this->message = '';
         $this->messageSuccess = false;
         $cliente = Cliente::where('estado_cliente', 'inactivo')->find($clienteId);
@@ -162,30 +169,41 @@ class EmployeesIndexLive extends Component
      */
     public function suspendClientesMasivo()
     {
+        $this->authorize('biotime.delete');
         $this->message = '';
         $this->messageSuccess = false;
         $clientes = $this->clientesInactivosAll;
         if ($clientes->isEmpty()) {
             $this->message = 'No hay clientes inactivos para suspender.';
+            $this->showSuspendMasivoModal = false;
             return;
         }
         set_time_limit(120);
         $count = 0;
         $errors = [];
+        $skipped = 0;
         foreach ($clientes as $cliente) {
+            $fresh = Cliente::find($cliente->id);
+            if (! $fresh || $fresh->estado_cliente !== 'inactivo') {
+                $skipped++;
+                continue;
+            }
             try {
-                $this->deleteFromBiotimeIfExists($cliente->id);
-                $cliente->update([
+                $this->deleteFromBiotimeIfExists($fresh->id);
+                $fresh->update([
                     'estado_cliente' => 'suspendido',
                     'biotime_state' => false,
                     'biotime_update' => false,
                 ]);
                 $count++;
             } catch (\Throwable $e) {
-                $errors[] = $cliente->nombres . ' ' . $cliente->apellidos . ': ' . $e->getMessage();
+                $errors[] = $fresh->nombres . ' ' . $fresh->apellidos . ': ' . $e->getMessage();
             }
         }
         $this->message = "Suspendidos: {$count} de " . $clientes->count() . '.';
+        if ($skipped > 0) {
+            $this->message .= " Omitidos (activos): {$skipped}.";
+        }
         if (count($errors) > 0) {
             $this->message .= ' Errores: ' . implode('; ', array_slice($errors, 0, 3));
             if (count($errors) > 3) {
@@ -193,11 +211,19 @@ class EmployeesIndexLive extends Component
             }
         }
         $this->messageSuccess = $count > 0;
-        $this->confirmSuspendMasivo = false;
+        $this->showSuspendMasivoModal = false;
     }
 
+    /**
+     * Elimina el empleado de BioTime si existe.
+     * No hace nada si el cliente está activo: no se puede suspender en BioTime un cliente activo.
+     */
     protected function deleteFromBiotimeIfExists(int $clienteId): void
     {
+        $cliente = Cliente::find($clienteId);
+        if ($cliente && $cliente->estado_cliente === 'activo') {
+            return;
+        }
         try {
             $this->client->deleteEmployee($clienteId);
         } catch (\Throwable $e) {
@@ -217,12 +243,13 @@ class EmployeesIndexLive extends Component
     public function cancelSuspend()
     {
         $this->confirmSuspendId = null;
-        $this->confirmSuspendMasivo = false;
+        $this->showSuspendMasivoModal = false;
     }
 
+    /** Abre el modal de confirmación para suspender todos los inactivos. */
     public function confirmSuspendMasivo()
     {
-        $this->confirmSuspendMasivo = true;
+        $this->showSuspendMasivoModal = true;
     }
 
     public function render()

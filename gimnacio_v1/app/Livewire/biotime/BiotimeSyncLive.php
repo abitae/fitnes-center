@@ -50,6 +50,7 @@ class BiotimeSyncLive extends Component
 
     public function mount()
     {
+        $this->authorize('biotime.view');
         $this->syncStartDate = now()->subDays(7)->format('Y-m-d');
         $this->syncEndDate = now()->format('Y-m-d');
         $this->loadEmployees();
@@ -130,6 +131,7 @@ class BiotimeSyncLive extends Component
 
     public function syncTransactions()
     {
+        $this->authorize('biotime.create');
         $this->validate([
             'syncStartDate' => ['required', 'date'],
             'syncEndDate' => ['required', 'date', 'after_or_equal:syncStartDate'],
@@ -243,6 +245,7 @@ class BiotimeSyncLive extends Component
      */
     public function syncClientesToBiotime()
     {
+        $this->authorize('biotime.create');
         $this->validate([
             'uploadDepartmentId' => ['required', 'integer', 'min:1'],
             'uploadAreaId' => ['required', 'integer', 'min:1'],
@@ -375,6 +378,7 @@ class BiotimeSyncLive extends Component
      */
     public function syncClienteToBiotime(int $clienteId)
     {
+        $this->authorize('biotime.create');
         $this->validate([
             'uploadDepartmentId' => ['required', 'integer', 'min:1'],
             'uploadAreaId' => ['required', 'integer', 'min:1'],
@@ -464,6 +468,112 @@ class BiotimeSyncLive extends Component
         } catch (\Throwable $e) {
             $this->uploadResult = false;
             $this->uploadMessage = $cliente->nombres . ' ' . $cliente->apellidos . ': ' . $e->getMessage();
+        }
+    }
+
+    /**
+     * Crea un cliente en el sistema a partir de un empleado de BioTime que no tiene cliente local.
+     * El id del cliente será emp_code para mantener el vínculo con BioTime.
+     */
+    public function createClienteFromBiotimeEmployee(int $empCode, string $firstName = '', string $lastName = '')
+    {
+        $this->authorize('biotime.create');
+        $this->syncMessage = '';
+
+        if ($empCode <= 0) {
+            $this->syncMessage = 'Código de empleado no válido.';
+            return;
+        }
+
+        if (Cliente::find($empCode)) {
+            $this->syncMessage = 'Ya existe un cliente con ese código (id ' . $empCode . ').';
+            return;
+        }
+
+        $firstName = trim($firstName);
+        $lastName = trim($lastName);
+
+        if ($firstName === '' && $lastName === '') {
+            try {
+                $emp = $this->client->getEmployee($empCode);
+                $firstName = trim($emp['first_name'] ?? '');
+                $lastName = trim($emp['last_name'] ?? '');
+            } catch (\Throwable $e) {
+                $this->syncMessage = 'No se pudo obtener el empleado de BioTime: ' . $e->getMessage();
+                return;
+            }
+        }
+
+        if ($firstName === '' && $lastName === '') {
+            $this->syncMessage = 'El empleado no tiene nombre en BioTime. No se puede crear el cliente.';
+            return;
+        }
+
+        $userId = Auth::id();
+        if (! $userId) {
+            $this->syncMessage = 'Debes iniciar sesión para crear el cliente.';
+            return;
+        }
+
+        try {
+            $cliente = new Cliente;
+            $cliente->id = $empCode;
+            $cliente->tipo_documento = 'DNI';
+            $cliente->numero_documento = (string) $empCode;
+            $cliente->nombres = $firstName ?: 'Sin nombre';
+            $cliente->apellidos = $lastName ?: '';
+            $cliente->estado_cliente = 'inactivo';
+            $cliente->biotime_state = true;
+            $cliente->biotime_update = false;
+            $cliente->created_by = $userId;
+            $cliente->updated_by = $userId;
+            $cliente->save();
+
+            $this->syncMessage = 'Cliente creado: ' . $cliente->nombres . ' ' . $cliente->apellidos . ' (id ' . $empCode . ').';
+            $this->loadEmployees();
+        } catch (\Throwable $e) {
+            $this->syncMessage = 'Error al crear el cliente: ' . $e->getMessage();
+        }
+    }
+
+    /**
+     * Elimina manualmente un empleado de BioTime.
+     * La API de BioTime usa el id interno del empleado en la URL, no el emp_code.
+     *
+     * @param int $biotimeEmployeeId Id interno del empleado en BioTime (viene de $emp['id'] en la lista).
+     * @param int $empCode Código del empleado (emp_code); si hay cliente local con ese id, se actualiza biotime_state.
+     */
+    public function deleteEmployeeFromBiotime(int $biotimeEmployeeId, int $empCode = 0)
+    {
+        $this->authorize('biotime.delete');
+        $this->syncMessage = '';
+
+        if ($biotimeEmployeeId <= 0) {
+            $this->syncMessage = 'Id de empleado en BioTime no válido.';
+            return;
+        }
+
+        try {
+            $this->client->deleteEmployee($biotimeEmployeeId);
+
+            $cliente = $empCode > 0 ? Cliente::find($empCode) : null;
+            if ($cliente) {
+                $cliente->update([
+                    'biotime_state' => false,
+                    'biotime_update' => false,
+                ]);
+            }
+
+            $this->syncMessage = 'Empleado eliminado de BioTime.' . ($cliente ? ' Cliente local actualizado (biotime_state = false).' : '');
+            $this->loadEmployees();
+        } catch (\Throwable $e) {
+            $msg = $e->getMessage();
+            if (str_contains($msg, '404') || str_contains($msg, 'No encontrado') || str_contains($msg, 'not found')) {
+                $this->syncMessage = 'El empleado no existe en BioTime o ya fue eliminado.';
+                $this->loadEmployees();
+                return;
+            }
+            $this->syncMessage = 'Error al eliminar de BioTime: ' . $msg;
         }
     }
 
