@@ -40,6 +40,7 @@ class User extends Authenticatable
         'accent',
         'sidebar_bg',
         'header_bg',
+        'body_bg',
     ];
 
     /**

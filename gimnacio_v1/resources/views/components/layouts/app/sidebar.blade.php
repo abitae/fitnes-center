@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="{{ $bodyAppearanceClass ?? 'dark' }} {{ $accentClass ?? 'accent-neutral' }}" data-appearance="{{ $appearanceValue ?? 'system' }}" data-appearance-sidebar="{{ $appearanceSidebarValue ?? 'system' }}" data-appearance-header="{{ $appearanceHeaderValue ?? 'system' }}" data-accent="{{ $accentValue ?? 'neutral' }}" data-sidebar-bg="{{ $sidebarBgValue ?? 'default' }}" data-header-bg="{{ $headerBgValue ?? 'default' }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="{{ $bodyAppearanceClass ?? 'dark' }} {{ $accentClass ?? 'accent-neutral' }}" data-appearance="{{ $appearanceValue ?? 'system' }}" data-appearance-sidebar="{{ $appearanceSidebarValue ?? 'system' }}" data-appearance-header="{{ $appearanceHeaderValue ?? 'system' }}" data-accent="{{ $accentValue ?? 'neutral' }}" data-sidebar-bg="{{ $sidebarBgValue ?? 'default' }}" data-header-bg="{{ $headerBgValue ?? 'default' }}" data-body-bg="{{ $bodyBgValue ?? 'default' }}">
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800 antialiased">
+    <body class="min-h-screen antialiased transition-colors {{ $bodyBgClass ?? 'bg-white dark:bg-zinc-800' }}">
         <flux:sidebar id="app-sidebar" sticky collapsible="mobile" class="{{ $sidebarAppearanceClass ?? 'dark' }} {{ $sidebarBgClass ?? 'bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700' }}">
             <flux:sidebar.header>
                 <a href="{{ route('dashboard') }}" class="flex items-center gap-2 px-2 py-2 min-w-0" wire:navigate>
@@ -60,10 +60,46 @@
                 @endcan
 
                 <flux:sidebar.group expandable heading="CRM" class="grid" :expanded="request()->routeIs('crm.*')">
+                    @can('crm.view')
+                    <flux:sidebar.item icon="view-columns" :href="route('crm.pipeline')" :current="request()->routeIs('crm.pipeline')" wire:navigate>
+                        {{ __('Pipeline') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="list-bullet" :href="route('crm.leads.index')" :current="request()->routeIs('crm.leads.index')" wire:navigate>
+                        {{ __('Leads') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="clipboard-document-check" :href="route('crm.tareas')" :current="request()->routeIs('crm.tareas')" wire:navigate>
+                        {{ __('Tareas CRM') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="banknotes" :href="route('crm.deals')" :current="request()->routeIs('crm.deals')" wire:navigate>
+                        {{ __('Oportunidades') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="document-chart-bar" :href="route('crm.reportes')" :current="request()->routeIs('crm.reportes')" wire:navigate>
+                        {{ __('Reportes CRM') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="tag" :href="route('crm.etiquetas')" :current="request()->routeIs('crm.etiquetas')" wire:navigate>
+                        {{ __('Etiquetas') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="arrow-path" :href="route('crm.renovacion-reactivacion')" :current="request()->routeIs('crm.renovacion-reactivacion')" wire:navigate>
+                        {{ __('Renovación / Reactivación') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="megaphone" :href="route('crm.campaigns')" :current="request()->routeIs('crm.campaigns*')" wire:navigate>
+                        {{ __('Campañas') }}
+                    </flux:sidebar.item>
+                    @endcan
+                    @can('crm-mensajes.view')
                     <flux:sidebar.item icon="chat-bubble-left-right" :href="route('crm.mensajes')" :current="request()->routeIs('crm.mensajes')" wire:navigate>
                         {{ __('Mensajes WhatsApp') }}
                     </flux:sidebar.item>
+                    @endcan
                 </flux:sidebar.group>
+
+                @can('reportes.view')
+                <flux:sidebar.group expandable heading="Reportes" class="grid" :expanded="request()->routeIs('reportes.*')">
+                    <flux:sidebar.item icon="document-chart-bar" :href="route('reportes.index')" :current="request()->routeIs('reportes.index')" wire:navigate>
+                        {{ __('Reportes') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+                @endcan
 
                 <flux:sidebar.group expandable heading="Ventas" class="grid" :expanded="request()->routeIs('cajas.*') || request()->routeIs('pos.*')">
                     @can('cajas.view')
@@ -254,6 +290,7 @@
         @stack('scripts')
         <script>
             (function() {
+                var STORAGE_KEY = 'app-appearance';
                 var sidebarBgClasses = {
                     default: 'bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700',
                     slate: 'bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800',
@@ -274,8 +311,27 @@
                     violet: 'bg-white lg:bg-violet-50 dark:bg-violet-950 border-b border-violet-200 dark:border-violet-800',
                     indigo: 'bg-white lg:bg-indigo-50 dark:bg-indigo-950 border-b border-indigo-200 dark:border-indigo-800'
                 };
+                var bodyBgClasses = {
+                    default: 'bg-white dark:bg-zinc-800',
+                    slate: 'bg-slate-50 dark:bg-slate-900',
+                    blue: 'bg-blue-50/50 dark:bg-blue-950/50',
+                    green: 'bg-green-50/50 dark:bg-green-950/50',
+                    amber: 'bg-amber-50/50 dark:bg-amber-950/50',
+                    red: 'bg-red-50/50 dark:bg-red-950/50',
+                    violet: 'bg-violet-50/50 dark:bg-violet-950/50',
+                    indigo: 'bg-indigo-50/50 dark:bg-indigo-950/50'
+                };
                 function resolveMode(val) {
                     return val === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : val;
+                }
+                function getStoredAppearance() {
+                    try {
+                        var raw = localStorage.getItem(STORAGE_KEY);
+                        if (!raw) return null;
+                        var data = JSON.parse(raw);
+                        if (data && typeof data.appearance !== 'undefined') return data;
+                    } catch (e) {}
+                    return null;
                 }
                 function applyAppearance(params) {
                     var appearance = params.appearance || 'system';
@@ -284,40 +340,74 @@
                     var accent = params.accent || 'neutral';
                     var sidebarBg = params.sidebar_bg || 'default';
                     var headerBg = params.header_bg || 'default';
+                    var bodyBg = params.body_bg || 'default';
                     var html = document.documentElement;
                     html.classList.remove('light', 'dark');
                     html.classList.add(resolveMode(appearance));
                     html.setAttribute('data-appearance', appearance);
                     html.setAttribute('data-appearance-sidebar', appearanceSidebar);
                     html.setAttribute('data-appearance-header', appearanceHeader);
-                    html.classList.remove('accent-neutral', 'accent-blue', 'accent-green', 'accent-red');
+                    html.classList.remove('accent-neutral', 'accent-blue', 'accent-green', 'accent-red', 'accent-violet', 'accent-indigo', 'accent-amber');
                     html.classList.add('accent-' + accent);
                     html.setAttribute('data-accent', accent);
                     html.setAttribute('data-sidebar-bg', sidebarBg);
                     html.setAttribute('data-header-bg', headerBg);
+                    html.setAttribute('data-body-bg', bodyBg);
                     var sidebarMode = resolveMode(appearanceSidebar);
                     var sidebarEl = document.getElementById('app-sidebar');
                     if (sidebarEl) {
-                        var base = sidebarEl.className.replace(/\b(light|dark)\b|\bbg-\w+(-\d+)?|dark:bg-\w+(-\d+)?|border-r|border-\w+(-\d+)?|dark:border-\w+(-\d+)?/g, '').replace(/\s+/g, ' ').trim();
+                        var base = sidebarEl.className.replace(/\b(light|dark)\b|\bbg-\w+(-\d+)?(\/\d+)?|dark:bg-\w+(-\d+)?(\/\d+)?|border-r|border-\w+(-\d+)?|dark:border-\w+(-\d+)?/g, '').replace(/\s+/g, ' ').trim();
                         sidebarEl.className = (base + ' ' + sidebarMode + ' ' + (sidebarBgClasses[sidebarBg] || sidebarBgClasses.default)).trim();
                     }
                     var headerMode = resolveMode(appearanceHeader);
                     var headerEl = document.getElementById('app-header');
                     if (headerEl) {
-                        var baseH = headerEl.className.replace(/\b(light|dark)\b|\bbg-\w+(-\d+)?|dark:bg-\w+(-\d+)?|lg:bg-\w+(-\d+)?|border-b|border-\w+(-\d+)?|dark:border-\w+(-\d+)?/g, '').replace(/\s+/g, ' ').trim();
+                        var baseH = headerEl.className.replace(/\b(light|dark)\b|\bbg-\w+(-\d+)?(\/\d+)?|dark:bg-\w+(-\d+)?(\/\d+)?|lg:bg-\w+(-\d+)?(\/\d+)?|border-b|border-\w+(-\d+)?|dark:border-\w+(-\d+)?/g, '').replace(/\s+/g, ' ').trim();
                         headerEl.className = (baseH + ' ' + headerMode + ' ' + (headerBgClasses[headerBg] || headerBgClasses.default)).trim();
                     }
+                    var bodyEl = document.body;
+                    if (bodyEl) {
+                        var bodyParts = bodyEl.className.split(/\s+/).filter(function(c) {
+                            return c && !/^bg-\w+(-\d+)?(\/\d+)?$/.test(c) && !/^dark:bg-\w+(-\d+)?(\/\d+)?$/.test(c);
+                        });
+                        bodyEl.className = (bodyParts.join(' ') + ' ' + (bodyBgClasses[bodyBg] || bodyBgClasses.default)).trim();
+                    }
+                    try {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                            appearance: appearance,
+                            appearance_sidebar: appearanceSidebar,
+                            appearance_header: appearanceHeader,
+                            accent: accent,
+                            sidebar_bg: sidebarBg,
+                            header_bg: headerBg,
+                            body_bg: bodyBg
+                        }));
+                    } catch (e) {}
+                }
+                function getParamsFromDocument() {
+                    return {
+                        appearance: document.documentElement.getAttribute('data-appearance') || 'system',
+                        appearance_sidebar: document.documentElement.getAttribute('data-appearance-sidebar') || 'system',
+                        appearance_header: document.documentElement.getAttribute('data-appearance-header') || 'system',
+                        accent: document.documentElement.getAttribute('data-accent') || 'neutral',
+                        sidebar_bg: document.documentElement.getAttribute('data-sidebar-bg') || 'default',
+                        header_bg: document.documentElement.getAttribute('data-header-bg') || 'default',
+                        body_bg: document.documentElement.getAttribute('data-body-bg') || 'default'
+                    };
+                }
+                function restoreAppearanceFromStorage() {
+                    var stored = getStoredAppearance();
+                    if (stored) applyAppearance(stored);
                 }
                 document.addEventListener('livewire:init', function() {
-                    var appearance = document.documentElement.getAttribute('data-appearance');
-                    var appearanceSidebar = document.documentElement.getAttribute('data-appearance-sidebar');
-                    var appearanceHeader = document.documentElement.getAttribute('data-appearance-header');
-                    var accent = document.documentElement.getAttribute('data-accent') || 'neutral';
-                    var sidebarBg = document.documentElement.getAttribute('data-sidebar-bg') || 'default';
-                    var headerBg = document.documentElement.getAttribute('data-header-bg') || 'default';
-                    applyAppearance({ appearance: appearance || 'system', appearance_sidebar: appearanceSidebar || 'system', appearance_header: appearanceHeader || 'system', accent: accent, sidebar_bg: sidebarBg, header_bg: headerBg });
+                    var stored = getStoredAppearance();
+                    var params = stored || getParamsFromDocument();
+                    applyAppearance(params);
                     Livewire.on('appearance-updated', applyAppearance);
+                    document.addEventListener('livewire:navigated', restoreAppearanceFromStorage);
                 });
+                restoreAppearanceFromStorage();
+                document.addEventListener('livewire:navigated', restoreAppearanceFromStorage);
             })();
         </script>
         @php

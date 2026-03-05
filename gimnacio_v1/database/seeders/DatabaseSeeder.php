@@ -48,6 +48,8 @@ class DatabaseSeeder extends Seeder
             CitaSeeder::class,                // Depende de Cliente, EvaluacionMedidasNutricion
             SeguimientoNutricionSeeder::class, // Depende de Cliente, Cita, User (nutricionista)
             CrmMensajeSeeder::class,          // Depende de Cliente, User
+            CrmStageSeeder::class,             // Etapas CRM (antes de leads)
+            LossReasonSeeder::class,          // Motivos de pérdida CRM
             BiotimeAccessLogSeeder::class,   // Depende de Cliente
             IntegrationErrorLogSeeder::class, // Sin dependencias
             AuditLogSeeder::class,            // Depende de User

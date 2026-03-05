@@ -104,6 +104,7 @@ class ClienteService
     public function create(array $data): Cliente
     {
         $validated = $this->validate($data);
+        $validated['created_by'] = $validated['created_by'] ?? auth()->id();
 
         return DB::transaction(function () use ($validated) {
             return Cliente::create($validated);
@@ -189,6 +190,7 @@ class ClienteService
             'datos_salud' => ['nullable', 'array'],
             'datos_emergencia' => ['nullable', 'array'],
             'consentimientos' => ['nullable', 'array'],
+            'created_by' => ['nullable', 'exists:users,id'],
         ];
 
         $validator = Validator::make($data, $rules);

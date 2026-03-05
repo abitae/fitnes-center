@@ -14,6 +14,7 @@ new class extends Component {
     public string $accent = 'neutral';
     public string $sidebar_bg = 'default';
     public string $header_bg = 'default';
+    public string $body_bg = 'default';
 
     public function mount(): void
     {
@@ -39,6 +40,7 @@ new class extends Component {
         $this->accent = $user->accent ?? 'neutral';
         $this->sidebar_bg = $user->sidebar_bg ?? 'default';
         $this->header_bg = $user->header_bg ?? 'default';
+        $this->body_bg = $user->body_bg ?? 'default';
     }
 
     /** Tema del cuerpo (contenido principal) */
@@ -70,7 +72,7 @@ new class extends Component {
 
     public function setAccent(string $value): void
     {
-        if (! in_array($value, ['neutral', 'blue', 'green', 'red'], true) || ! Auth::check()) return;
+        if (! in_array($value, ['neutral', 'blue', 'green', 'red', 'violet', 'indigo', 'amber'], true) || ! Auth::check()) return;
         Auth::user()->update(['accent' => $value]);
         $this->accent = $value;
         $this->dispatchAppearanceUpdated();
@@ -92,6 +94,14 @@ new class extends Component {
         $this->dispatchAppearanceUpdated();
     }
 
+    public function setBodyBg(string $value): void
+    {
+        if (! in_array($value, ['default', 'slate', 'blue', 'green', 'amber', 'red', 'violet', 'indigo'], true) || ! Auth::check()) return;
+        Auth::user()->update(['body_bg' => $value]);
+        $this->body_bg = $value;
+        $this->dispatchAppearanceUpdated();
+    }
+
     private function dispatchAppearanceUpdated(): void
     {
         $user = Auth::user();
@@ -101,7 +111,8 @@ new class extends Component {
             appearance_header: $user->appearance_header ?? 'system',
             accent: $user->accent ?? 'neutral',
             sidebar_bg: $this->sidebar_bg,
-            header_bg: $this->header_bg
+            header_bg: $this->header_bg,
+            body_bg: $this->body_bg
         );
     }
 }; ?>
@@ -164,8 +175,8 @@ new class extends Component {
                 <div>
                     <flux:text class="mb-2 block text-sm font-medium text-zinc-900">{{ __('Accent color') }}</flux:text>
                     <div class="flex flex-wrap gap-2">
-                        @foreach(['neutral' => 'bg-zinc-400', 'blue' => 'bg-blue-500', 'green' => 'bg-green-500', 'red' => 'bg-red-500'] as $val => $dotClass)
-                            <button type="button" wire:click="setAccent('{{ $val }}')" class="flex items-center gap-2 rounded-lg border border-zinc-200 px-3 py-2 text-sm transition hover:border-zinc-300 text-zinc-900 @if($accent === $val) border-accent ring-2 ring-accent @endif">
+                        @foreach(['neutral' => 'bg-zinc-400', 'blue' => 'bg-blue-500', 'green' => 'bg-green-500', 'red' => 'bg-red-500', 'violet' => 'bg-violet-500', 'indigo' => 'bg-indigo-500', 'amber' => 'bg-amber-500'] as $val => $dotClass)
+                            <button type="button" wire:click="setAccent('{{ $val }}')" class="flex items-center gap-2 rounded-lg border border-zinc-200 px-3 py-2 text-sm transition hover:border-zinc-300 text-zinc-900 @if($accent === $val) border-accent ring-2 ring-accent @endif" title="{{ __(ucfirst($val)) }}">
                                 <span class="size-4 rounded-full {{ $dotClass }}"></span>
                                 <span>{{ __(ucfirst($val)) }}</span>
                             </button>
@@ -189,6 +200,17 @@ new class extends Component {
                     <div class="flex flex-wrap gap-2">
                         @foreach(['default' => 'border-zinc-300 bg-zinc-100', 'slate' => 'bg-slate-500', 'blue' => 'bg-blue-500', 'green' => 'bg-green-500', 'amber' => 'bg-amber-500', 'red' => 'bg-red-500', 'violet' => 'bg-violet-500', 'indigo' => 'bg-indigo-500'] as $val => $swatchClass)
                             <button type="button" wire:click="setHeaderBg('{{ $val }}')" class="rounded-lg border-2 p-1.5 transition border-transparent hover:border-zinc-300 @if($header_bg === $val) border-accent ring-2 ring-accent @endif" title="{{ __(ucfirst($val)) }}">
+                                <span class="block size-6 rounded-full {{ $swatchClass }}"></span>
+                            </button>
+                        @endforeach
+                    </div>
+                </div>
+
+                <div>
+                    <flux:text class="mb-2 block text-sm font-medium text-zinc-900">{{ __('Body background') }}</flux:text>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach(['default' => 'border-zinc-300 bg-zinc-100', 'slate' => 'bg-slate-500', 'blue' => 'bg-blue-500', 'green' => 'bg-green-500', 'amber' => 'bg-amber-500', 'red' => 'bg-red-500', 'violet' => 'bg-violet-500', 'indigo' => 'bg-indigo-500'] as $val => $swatchClass)
+                            <button type="button" wire:click="setBodyBg('{{ $val }}')" class="rounded-lg border-2 p-1.5 transition border-transparent hover:border-zinc-300 @if($body_bg === $val) border-accent ring-2 ring-accent @endif" title="{{ __(ucfirst($val)) }}">
                                 <span class="block size-6 rounded-full {{ $swatchClass }}"></span>
                             </button>
                         @endforeach

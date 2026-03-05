@@ -42,7 +42,41 @@ Route::middleware(['auth'])->group(function () {
     Route::get('servicios', \App\Livewire\Servicios\ServicioExternoLive::class)->middleware('permission:servicios.view')->name('servicios.index');
     Route::get('clases', \App\Livewire\Clases\ClaseLive::class)->middleware('permission:clases.view')->name('clases.index');
 
-    // Reportes (previsualización e impresión/descarga)
+    // Módulo de Reportes (índice, reportes por tipo y exportación PDF/Excel)
+    Route::prefix('reportes')->name('reportes.')->middleware('permission:reportes.view')->group(function () {
+        Route::get('/', \App\Livewire\Reportes\ReporteIndexLive::class)->name('index');
+        Route::get('ventas', \App\Livewire\Reportes\ReporteVentasLive::class)->name('ventas');
+        Route::get('matriculas', \App\Livewire\Reportes\ReporteMatriculasLive::class)->name('matriculas');
+        Route::get('financiero', \App\Livewire\Reportes\ReporteFinancieroLive::class)->name('financiero');
+        Route::get('clientes', \App\Livewire\Reportes\ReporteClientesLive::class)->name('clientes');
+        Route::get('clientes-membresia-clases', \App\Livewire\Reportes\ReporteClientesMembresiaClasesLive::class)->name('clientes-membresia-clases');
+        Route::get('usuarios', \App\Livewire\Reportes\ReporteUsuariosLive::class)->name('usuarios');
+        Route::get('cajas', \App\Livewire\Reportes\ReporteCajasLive::class)->name('cajas');
+        Route::get('productos-servicios', \App\Livewire\Reportes\ReporteProductosServiciosLive::class)->name('productos-servicios');
+        Route::get('gimnasio', \App\Livewire\Reportes\ReporteGimnasioLive::class)->name('gimnasio');
+        // Exportación PDF
+        Route::get('ventas/exportar-pdf', [\App\Http\Controllers\ReporteModuloController::class, 'exportarPdfVentas'])->name('ventas.exportar.pdf');
+        Route::get('matriculas/exportar-pdf', [\App\Http\Controllers\ReporteModuloController::class, 'exportarPdfMatriculas'])->name('matriculas.exportar.pdf');
+        Route::get('financiero/exportar-pdf', [\App\Http\Controllers\ReporteModuloController::class, 'exportarPdfFinanciero'])->name('financiero.exportar.pdf');
+        Route::get('clientes/exportar-pdf', [\App\Http\Controllers\ReporteModuloController::class, 'exportarPdfClientes'])->name('clientes.exportar.pdf');
+        Route::get('clientes-membresia-clases/exportar-pdf', [\App\Http\Controllers\ReporteModuloController::class, 'exportarPdfClientesMembresiaClases'])->name('clientes-membresia-clases.exportar.pdf');
+        Route::get('usuarios/exportar-pdf', [\App\Http\Controllers\ReporteModuloController::class, 'exportarPdfUsuarios'])->name('usuarios.exportar.pdf');
+        Route::get('cajas/exportar-pdf', [\App\Http\Controllers\ReporteModuloController::class, 'exportarPdfCajas'])->name('cajas.exportar.pdf');
+        Route::get('productos-servicios/exportar-pdf', [\App\Http\Controllers\ReporteModuloController::class, 'exportarPdfProductosServicios'])->name('productos-servicios.exportar.pdf');
+        Route::get('gimnasio/exportar-pdf', [\App\Http\Controllers\ReporteModuloController::class, 'exportarPdfGimnasio'])->name('gimnasio.exportar.pdf');
+        // Exportación Excel
+        Route::get('ventas/exportar-excel', [\App\Http\Controllers\ReporteModuloController::class, 'exportarExcelVentas'])->name('ventas.exportar.excel');
+        Route::get('matriculas/exportar-excel', [\App\Http\Controllers\ReporteModuloController::class, 'exportarExcelMatriculas'])->name('matriculas.exportar.excel');
+        Route::get('financiero/exportar-excel', [\App\Http\Controllers\ReporteModuloController::class, 'exportarExcelFinanciero'])->name('financiero.exportar.excel');
+        Route::get('clientes/exportar-excel', [\App\Http\Controllers\ReporteModuloController::class, 'exportarExcelClientes'])->name('clientes.exportar.excel');
+        Route::get('clientes-membresia-clases/exportar-excel', [\App\Http\Controllers\ReporteModuloController::class, 'exportarExcelClientesMembresiaClases'])->name('clientes-membresia-clases.exportar.excel');
+        Route::get('usuarios/exportar-excel', [\App\Http\Controllers\ReporteModuloController::class, 'exportarExcelUsuarios'])->name('usuarios.exportar.excel');
+        Route::get('cajas/exportar-excel', [\App\Http\Controllers\ReporteModuloController::class, 'exportarExcelCajas'])->name('cajas.exportar.excel');
+        Route::get('productos-servicios/exportar-excel', [\App\Http\Controllers\ReporteModuloController::class, 'exportarExcelProductosServicios'])->name('productos-servicios.exportar.excel');
+        Route::get('gimnasio/exportar-excel', [\App\Http\Controllers\ReporteModuloController::class, 'exportarExcelGimnasio'])->name('gimnasio.exportar.excel');
+    });
+
+    // Reportes (previsualización e impresión/descarga) - evaluaciones y cliente
     Route::prefix('reportes')->name('reportes.')->group(function () {
         Route::get('evaluacion/{evaluacionId}/preview', [\App\Http\Controllers\ReporteController::class, 'previewEvaluacion'])->name('evaluacion.preview');
         Route::get('evaluacion/{evaluacionId}/descargar', [\App\Http\Controllers\ReporteController::class, 'descargarEvaluacion'])->name('evaluacion.descargar');
@@ -69,6 +103,19 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // CRM
+    Route::prefix('crm')->name('crm.')->middleware('permission:crm.view')->group(function () {
+        Route::get('pipeline', \App\Livewire\Crm\CrmPipelineLive::class)->name('pipeline');
+        Route::get('leads', \App\Livewire\Crm\LeadsListLive::class)->name('leads.index');
+        Route::get('leads/{lead}', \App\Livewire\Crm\LeadDetailLive::class)->name('leads.show');
+        Route::get('tareas', \App\Livewire\Crm\CrmTasksLive::class)->name('tareas');
+        Route::get('ofertas', \App\Livewire\Crm\CrmDealsLive::class)->name('deals');
+        Route::get('reportes', \App\Livewire\Crm\CrmReportesLive::class)->name('reportes');
+        Route::get('etiquetas', \App\Livewire\Crm\CrmTagsLive::class)->name('etiquetas');
+        Route::get('renovacion-reactivacion', \App\Livewire\Crm\RenewalReactivacionLive::class)->name('renovacion-reactivacion');
+        Route::get('campanias', \App\Livewire\Crm\CrmCampaignsLive::class)->name('campaigns');
+        Route::get('campanias/{campaign}', \App\Livewire\Crm\CampaignDetailLive::class)->name('campaigns.show');
+        Route::get('clientes/{cliente}/etiquetas', \App\Livewire\Crm\ClienteTagsLive::class)->name('clientes.etiquetas');
+    });
     Route::get('crm/mensajes', \App\Livewire\Crm\MensajesLive::class)->middleware('permission:crm-mensajes.view')->name('crm.mensajes');
 
     // Administración (por permiso)

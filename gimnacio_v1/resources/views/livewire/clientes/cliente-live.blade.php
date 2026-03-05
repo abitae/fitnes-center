@@ -139,9 +139,15 @@
             </div>
 
             <!-- Profile Card -->
-            <div class="lg:col-span-1">
+            <div class="lg:col-span-1 space-y-2">
                 @if ($selectedCliente)
                     <x-cliente.profile-card :cliente="$selectedCliente" />
+                    @can('crm.view')
+                    <a href="{{ route('crm.clientes.etiquetas', $selectedCliente->id) }}" wire:navigate
+                        class="inline-flex items-center gap-1 text-xs text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100">
+                        <flux:icon name="tag" class="w-4 h-4" /> Etiquetas CRM
+                    </a>
+                    @endcan
                 @else
                     <div class="rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800 p-3">
                         <div class="flex flex-col items-center justify-center h-full min-h-[150px] text-center">

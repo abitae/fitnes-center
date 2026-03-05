@@ -50,9 +50,11 @@ class RoleSeeder extends Seeder
             'servicios',
             'gestion-nutricional',
             'crm-mensajes',
+            'crm',
             'usuarios',
             'roles',
             'biotime',
+            'reportes',
         ];
         $actions = ['view', 'create', 'update', 'delete'];
         $allCrudPermissions = [];
@@ -81,11 +83,12 @@ class RoleSeeder extends Seeder
             'checking.view', 'checking.create', 'checking.update',
         ]);
 
-        // Caja: cajas y POS (ver, crear, actualizar)
+        // Caja: cajas y POS (ver, crear, actualizar), reportes (ver)
         $caja = Role::findByName('caja', $guard);
         $caja->syncPermissions([
             'cajas.view', 'cajas.create', 'cajas.update',
             'pos.view', 'pos.create',
+            'reportes.view',
         ]);
 
         // Vendedor: POS, productos y categorías (ver/crear/actualizar), clientes (ver)

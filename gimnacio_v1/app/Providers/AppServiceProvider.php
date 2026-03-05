@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Services\WhatsApp\MockWhatsAppService;
 use App\Services\WhatsApp\WhatsAppServiceInterface;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +25,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::policy(\App\Models\Crm\Lead::class, \App\Policies\Crm\LeadPolicy::class);
+
+        $this->app->booted(function () {
+            Schedule::command('crm:mark-overdue-tasks')->hourly();
+            Schedule::command('crm:renewal-tasks --days=7')->dailyAt('08:00');
+        });
+
         $sidebarBgClasses = [
             'default' => 'bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700',
             'slate' => 'bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800',
@@ -43,8 +52,18 @@ class AppServiceProvider extends ServiceProvider
             'violet' => 'bg-white lg:bg-violet-50 dark:bg-violet-950 border-b border-violet-200 dark:border-violet-800',
             'indigo' => 'bg-white lg:bg-indigo-50 dark:bg-indigo-950 border-b border-indigo-200 dark:border-indigo-800',
         ];
+        $bodyBgClasses = [
+            'default' => 'bg-white dark:bg-zinc-800',
+            'slate' => 'bg-slate-50 dark:bg-slate-900',
+            'blue' => 'bg-blue-50/50 dark:bg-blue-950/50',
+            'green' => 'bg-green-50/50 dark:bg-green-950/50',
+            'amber' => 'bg-amber-50/50 dark:bg-amber-950/50',
+            'red' => 'bg-red-50/50 dark:bg-red-950/50',
+            'violet' => 'bg-violet-50/50 dark:bg-violet-950/50',
+            'indigo' => 'bg-indigo-50/50 dark:bg-indigo-950/50',
+        ];
 
-        View::composer('components.layouts.app.sidebar', function ($view) use ($sidebarBgClasses, $headerBgClasses) {
+        View::composer('components.layouts.app.sidebar', function ($view) use ($sidebarBgClasses, $headerBgClasses, $bodyBgClasses) {
             $bodyAppearanceClass = 'dark';
             $appearanceValue = 'system';
             $sidebarAppearanceClass = 'dark';
@@ -54,9 +73,11 @@ class AppServiceProvider extends ServiceProvider
             $accentClass = 'accent-neutral';
             $sidebarBgClass = $sidebarBgClasses['default'];
             $headerBgClass = $headerBgClasses['default'];
+            $bodyBgClass = $bodyBgClasses['default'];
             $accentValue = 'neutral';
             $sidebarBgValue = 'default';
             $headerBgValue = 'default';
+            $bodyBgValue = 'default';
 
             if (Auth::check()) {
                 $user = Auth::user();
@@ -70,8 +91,10 @@ class AppServiceProvider extends ServiceProvider
                 $accentClass = 'accent-' . $accentValue;
                 $sidebarBgValue = $user->sidebar_bg ?? 'default';
                 $headerBgValue = $user->header_bg ?? 'default';
+                $bodyBgValue = $user->body_bg ?? 'default';
                 $sidebarBgClass = $sidebarBgClasses[$sidebarBgValue] ?? $sidebarBgClasses['default'];
                 $headerBgClass = $headerBgClasses[$headerBgValue] ?? $headerBgClasses['default'];
+                $bodyBgClass = $bodyBgClasses[$bodyBgValue] ?? $bodyBgClasses['default'];
             }
 
             $view->with('bodyAppearanceClass', $bodyAppearanceClass);
@@ -84,8 +107,10 @@ class AppServiceProvider extends ServiceProvider
             $view->with('accentValue', $accentValue);
             $view->with('sidebarBgClass', $sidebarBgClass);
             $view->with('headerBgClass', $headerBgClass);
+            $view->with('bodyBgClass', $bodyBgClass);
             $view->with('sidebarBgValue', $sidebarBgValue);
             $view->with('headerBgValue', $headerBgValue);
+            $view->with('bodyBgValue', $bodyBgValue);
         });
     }
 }

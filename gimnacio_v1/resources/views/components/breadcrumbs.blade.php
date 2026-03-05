@@ -17,6 +17,17 @@
             'gestion-nutricional.index' => __('Gestión Nutricional'),
             'gestion-nutricional.calendario' => __('Calendario'),
             'crm.mensajes' => __('Mensajes WhatsApp'),
+            'crm.pipeline' => __('Pipeline'),
+            'crm.leads.index' => __('Leads'),
+            'crm.leads.show' => __('Detalle lead'),
+            'crm.tareas' => __('Tareas CRM'),
+            'crm.deals' => __('Ofertas'),
+            'crm.reportes' => __('Reportes CRM'),
+            'crm.etiquetas' => __('Etiquetas CRM'),
+            'crm.renovacion-reactivacion' => __('Renovación y reactivación'),
+            'crm.campaigns' => __('Campañas'),
+            'crm.campaigns.show' => __('Detalle campaña'),
+            'crm.clientes.etiquetas' => __('Etiquetas cliente'),
             'usuarios.index' => __('Usuarios'),
             'roles.index' => __('Roles'),
             'biotime.index' => __('BioTime Dashboard'),
@@ -25,6 +36,16 @@
             'biotime.areas' => __('Áreas BioTime'),
             'biotime.departments' => __('Departamentos BioTime'),
             'biotime.employees' => __('Empleados BioTime'),
+            'reportes.index' => __('Reportes'),
+            'reportes.ventas' => __('Reporte de Ventas'),
+            'reportes.matriculas' => __('Reporte de Matrículas'),
+            'reportes.financiero' => __('Reporte Financiero'),
+            'reportes.clientes' => __('Reporte de Clientes'),
+            'reportes.clientes-membresia-clases' => __('Membresía y clases activas'),
+            'reportes.usuarios' => __('Reporte de Usuarios'),
+            'reportes.cajas' => __('Reporte de Cajas'),
+            'reportes.productos-servicios' => __('Reporte Productos y Servicios'),
+            'reportes.gimnasio' => __('Reporte del Gimnasio'),
             'profile.edit' => __('Settings'),
             'user-password.edit' => __('Contraseña'),
             'appearance.edit' => __('Apariencia'),
@@ -47,8 +68,20 @@
             if (str_starts_with($routeName, 'biotime.') && $routeName !== 'biotime.index') {
                 $parentLabel = __('Integración BioTime');
             }
+            if (str_starts_with($routeName, 'reportes.') && $routeName !== 'reportes.index') {
+                $parentLabel = __('Reportes');
+            }
+            if (str_starts_with($routeName, 'crm.') && $routeName !== 'crm.mensajes') {
+                $parentLabel = __('CRM');
+                $parentRoute = 'crm.pipeline';
+            }
             if ($parentLabel) {
-                $parentRoute = $routeName === 'gestion-nutricional.calendario' ? 'gestion-nutricional.index' : 'biotime.index';
+                $parentRoute = match (true) {
+                    str_starts_with($routeName, 'gestion-nutricional.') => 'gestion-nutricional.index',
+                    str_starts_with($routeName, 'biotime.') => 'biotime.index',
+                    str_starts_with($routeName, 'crm.') => 'crm.pipeline',
+                    default => 'reportes.index',
+                };
                 $segments[] = ['label' => $parentLabel, 'url' => route($parentRoute)];
             }
             $segments[] = ['label' => $labels[$routeName], 'url' => $urls[$routeName] ?? null];

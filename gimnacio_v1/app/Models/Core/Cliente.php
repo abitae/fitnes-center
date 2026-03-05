@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Cliente extends Model
@@ -146,6 +147,26 @@ class Cliente extends Model
     public function crmMensajes(): HasMany
     {
         return $this->hasMany(CrmMensaje::class);
+    }
+
+    public function crmLeads(): HasMany
+    {
+        return $this->hasMany(\App\Models\Crm\Lead::class, 'cliente_id');
+    }
+
+    public function crmTags(): BelongsToMany
+    {
+        return $this->belongsToMany(\App\Models\Crm\Tag::class, 'cliente_tag')->withTimestamps();
+    }
+
+    public function crmActivities(): HasMany
+    {
+        return $this->hasMany(\App\Models\Crm\CrmActivity::class, 'cliente_id');
+    }
+
+    public function crmTasks(): HasMany
+    {
+        return $this->hasMany(\App\Models\Crm\CrmTask::class, 'cliente_id');
     }
 
     public function trainerUser(): BelongsTo
