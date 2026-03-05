@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Crm;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Services\ClienteService;
 use App\Services\CrmMensajeService;
 use Livewire\Component;
@@ -9,7 +10,7 @@ use Livewire\WithPagination;
 
 class MensajesLive extends Component
 {
-    use WithPagination;
+    use FlashesToast, WithPagination;
 
     public $clienteSearch = '';
     public $clientes;
@@ -73,19 +74,19 @@ class MensajesLive extends Component
         $this->authorize('crm-mensajes.create');
         try {
             if (! $this->selectedClienteId) {
-                session()->flash('error', 'Selecciona un cliente');
+                $this->flashToast('error', 'Selecciona un cliente');
                 return;
             }
             if (empty(trim($this->contenido))) {
-                session()->flash('error', 'Escribe el mensaje');
+                $this->flashToast('error', 'Escribe el mensaje');
                 return;
             }
             $this->crmService->enviarWhatsApp($this->selectedClienteId, trim($this->contenido), auth()->id());
-            session()->flash('success', 'Mensaje enviado por WhatsApp');
+            $this->flashToast('success', 'Mensaje enviado por WhatsApp');
             $this->contenido = '';
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 

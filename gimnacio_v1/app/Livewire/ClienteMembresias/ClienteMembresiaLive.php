@@ -2,6 +2,7 @@
 
 namespace App\Livewire\ClienteMembresias;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Models\Core\Cliente;
 use App\Models\Core\ClienteMembresia;
 use App\Services\ClienteMembresiaService;
@@ -13,7 +14,7 @@ use Livewire\WithPagination;
 
 class ClienteMembresiaLive extends Component
 {
-    use WithPagination;
+    use FlashesToast, WithPagination;
 
     // Cliente search
     public $clienteSearch = '';
@@ -118,7 +119,7 @@ class ClienteMembresiaLive extends Component
     public function openCreateModal()
     {
         if (!$this->selectedClienteId) {
-            session()->flash('error', 'Debes seleccionar un cliente primero');
+            $this->flashToast('error', 'Debes seleccionar un cliente primero');
             return;
         }
 
@@ -131,7 +132,7 @@ class ClienteMembresiaLive extends Component
         $clienteMembresia = $this->service->find($id);
 
         if (!$clienteMembresia) {
-            session()->flash('error', 'Membresía no encontrada');
+            $this->flashToast('error', 'Membresía no encontrada');
             return;
         }
 
@@ -198,7 +199,7 @@ class ClienteMembresiaLive extends Component
     {
         try {
             if (!$this->selectedClienteId) {
-                session()->flash('error', 'Debes seleccionar un cliente primero');
+                $this->flashToast('error', 'Debes seleccionar un cliente primero');
                 return;
             }
 
@@ -207,10 +208,10 @@ class ClienteMembresiaLive extends Component
 
             if ($this->clienteMembresiaId) {
                 $this->service->update($this->clienteMembresiaId, $data);
-                session()->flash('success', 'Membresía actualizada correctamente');
+                $this->flashToast('success', 'Membresía actualizada correctamente');
             } else {
                 $this->service->create($data);
-                session()->flash('success', 'Membresía creada correctamente');
+                $this->flashToast('success', 'Membresía creada correctamente');
             }
 
             \App\Models\Core\Cliente::where('id', $this->selectedClienteId)->update(['estado_cliente' => 'activo']);
@@ -220,7 +221,7 @@ class ClienteMembresiaLive extends Component
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->handleValidationErrors($e);
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -228,11 +229,11 @@ class ClienteMembresiaLive extends Component
     {
         try {
             $this->service->delete($this->clienteMembresiaId);
-            session()->flash('success', 'Membresía eliminada correctamente');
+            $this->flashToast('success', 'Membresía eliminada correctamente');
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -292,7 +293,7 @@ class ClienteMembresiaLive extends Component
     {
         foreach ($e->errors() as $key => $messages) {
             foreach ($messages as $message) {
-                session()->flash('error', $message);
+                $this->flashToast('error', $message);
             }
         }
     }

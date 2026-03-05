@@ -34,8 +34,6 @@
 
         <!-- Flash Messages -->
         <div class="w-full">
-            <x-flash-message type="success" />
-            <x-flash-message type="error" />
         </div>
 
         <!-- Cliente Search -->
@@ -215,7 +213,7 @@
 
                             <!-- Pagination -->
                             @if ($evaluaciones->hasPages())
-                                <div>
+                                <div class="mt-4 flex justify-end">
                                     {{ $evaluaciones->links() }}
                                 </div>
                             @endif
@@ -334,7 +332,7 @@
 
                             <!-- Pagination -->
                             @if ($citas->hasPages())
-                                <div>
+                                <div class="mt-4 flex justify-end">
                                     {{ $citas->links() }}
                                 </div>
                             @endif

@@ -18,8 +18,6 @@
         <!-- Search and Filters -->
         <div class="flex gap-3 items-center justify-end">
             <div class="w-full">
-                <x-flash-message type="success" />
-                <x-flash-message type="error" />
             </div>
             <div class="w-48">
                 <flux:input icon="magnifying-glass" type="search" size="xs"
@@ -130,7 +128,7 @@
                                 <tr>
                                     <td colspan="6"
                                         class="px-4 py-8 text-center text-xs text-zinc-500 dark:text-zinc-400">
-                                        No se encontraron clases
+                                        No hay clases
                                     </td>
                                 </tr>
                             @endforelse
@@ -155,7 +153,7 @@
         </div>
 
         <!-- Pagination -->
-        <div class="mt-4">
+        <div class="mt-4 flex justify-end">
             {{ $clases->links() }}
         </div>
     </div>
@@ -176,14 +174,10 @@
 
                 <div class="grid grid-cols-2 gap-2">
                     <flux:input size="xs" wire:model="formData.codigo" label="Código" required />
-                    @error('formData.codigo')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                    <flux:error name="formData.codigo" />
 
                     <flux:input size="xs" wire:model="formData.nombre" label="Nombre" required />
-                    @error('formData.nombre')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                    <flux:error name="formData.nombre" />
                 </div>
 
                 <div>
@@ -192,9 +186,7 @@
                     </label>
                     <textarea wire:model="formData.descripcion" rows="2"
                         class="w-full rounded-lg border border-zinc-300 bg-white px-2 py-1 text-xs text-zinc-900 shadow-sm focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"></textarea>
-                    @error('formData.descripcion')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                    <flux:error name="formData.descripcion" />
                 </div>
 
                 <div>
@@ -206,34 +198,26 @@
                         <option value="sesion">Por Sesión</option>
                         <option value="paquete">Por Paquete</option>
                     </select>
-                    @error('formData.tipo')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                    <flux:error name="formData.tipo" />
                 </div>
 
                 @if ($formData['tipo'] === 'sesion')
                     <div>
                         <flux:input size="xs" wire:model.number="formData.precio_sesion" label="Precio por Sesión (S/)"
                             type="number" step="0.01" min="0" required />
-                        @error('formData.precio_sesion')
-                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
+                        <flux:error name="formData.precio_sesion" />
                     </div>
                 @else
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <flux:input size="xs" wire:model.number="formData.precio_paquete"
                                 label="Precio del Paquete (S/)" type="number" step="0.01" min="0" required />
-                            @error('formData.precio_paquete')
-                                <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                            @enderror
+                            <flux:error name="formData.precio_paquete" />
                         </div>
                         <div>
                             <flux:input size="xs" wire:model.number="formData.sesiones_paquete"
                                 label="Sesiones en el Paquete" type="number" min="1" required />
-                            @error('formData.sesiones_paquete')
-                                <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                            @enderror
+                            <flux:error name="formData.sesiones_paquete" />
                         </div>
                     </div>
                 @endif
@@ -249,9 +233,7 @@
                             <option value="{{ $instructor->id }}">{{ $instructor->name }}</option>
                         @endforeach
                     </select>
-                    @error('formData.instructor_id')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                    <flux:error name="formData.instructor_id" />
                 </div>
 
                 <div>
@@ -263,9 +245,7 @@
                         <option value="activo">Activo</option>
                         <option value="inactivo">Inactivo</option>
                     </select>
-                    @error('formData.estado')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                    <flux:error name="formData.estado" />
                 </div>
             </div>
 
@@ -277,8 +257,11 @@
                 </flux:modal.close>
                 <flux:button variant="primary" size="xs" type="submit" wire:loading.attr="disabled"
                     wire:target="save">
-                    <span wire:loading.remove wire:target="save">{{ $claseId ? 'Actualizar' : 'Crear' }}</span>
-                    <span wire:loading wire:target="save">Guardando...</span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <flux:icon name="arrow-path" class="size-4 shrink-0 animate-spin" wire:loading wire:target="save" />
+                        <span wire:loading.remove wire:target="save">{{ $claseId ? 'Actualizar' : 'Crear' }}</span>
+                        <span wire:loading wire:target="save">Guardando...</span>
+                    </span>
                 </flux:button>
             </div>
         </form>
@@ -304,8 +287,11 @@
             </flux:modal.close>
             <flux:button variant="danger" size="xs" wire:click="delete" type="button"
                 wire:loading.attr="disabled" wire:target="delete">
+                <span class="inline-flex items-center gap-1.5">
+                <flux:icon name="arrow-path" class="size-4 shrink-0 animate-spin" wire:loading wire:target="delete" />
                 <span wire:loading.remove wire:target="delete">Eliminar</span>
                 <span wire:loading wire:target="delete">Eliminando...</span>
+            </span>
             </flux:button>
         </div>
     </flux:modal>

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Checking;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Models\Core\Asistencia;
 use App\Models\Core\Cliente;
 use App\Models\Core\ClienteMembresia;
@@ -13,6 +14,7 @@ use Livewire\Component;
 
 class CheckingLive extends Component
 {
+    use FlashesToast;
     // Cliente search
     public $clienteSearch = '';
     public $clientes;
@@ -176,7 +178,7 @@ class CheckingLive extends Component
     {
         $this->authorize('checking.create');
         if (!$this->selectedClienteId) {
-            session()->flash('error', 'Debes seleccionar un cliente primero.');
+            $this->flashToast('error', 'Debes seleccionar un cliente primero.');
             return;
         }
 
@@ -184,7 +186,7 @@ class CheckingLive extends Component
             $validacion = $this->asistenciaService->validarIngreso($this->selectedClienteId);
 
             if (!$validacion['valido']) {
-                session()->flash('error', $validacion['mensaje']);
+                $this->flashToast('error', $validacion['mensaje']);
                 return;
             }
 
@@ -232,9 +234,9 @@ class CheckingLive extends Component
             
             $this->dispatch('checking-registro', clienteId: $this->selectedClienteId);
             session()->put('dashboard_last_cliente_id', $this->selectedClienteId);
-            session()->flash('success', 'Ingreso registrado exitosamente.');
+            $this->flashToast('success', 'Ingreso registrado exitosamente.');
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -245,7 +247,7 @@ class CheckingLive extends Component
     {
         $this->authorize('checking.update');
         if (!$this->selectedClienteId) {
-            session()->flash('error', 'Debes seleccionar un cliente primero.');
+            $this->flashToast('error', 'Debes seleccionar un cliente primero.');
             return;
         }
 
@@ -264,9 +266,9 @@ class CheckingLive extends Component
             }
             $this->dispatch('checking-registro', clienteId: $this->selectedClienteId);
             session()->put('dashboard_last_cliente_id', $this->selectedClienteId);
-            session()->flash('success', 'Salida registrada exitosamente.');
+            $this->flashToast('success', 'Salida registrada exitosamente.');
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 

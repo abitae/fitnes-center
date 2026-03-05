@@ -18,8 +18,6 @@
         <!-- Search and Filters -->
         <div class="flex gap-3 items-center justify-end">
             <div class="w-full">
-                <x-flash-message type="success" />
-                <x-flash-message type="error" />
             </div>
             <div class="w-48">
                 <flux:input icon="magnifying-glass" type="search" size="xs"
@@ -115,7 +113,7 @@
                                 <tr>
                                     <td colspan="5"
                                         class="px-4 py-8 text-center text-xs text-zinc-500 dark:text-zinc-400">
-                                        No se encontraron membresías
+                                        No hay membresías
                                     </td>
                                 </tr>
                             @endforelse
@@ -140,7 +138,7 @@
         </div>
 
         <!-- Pagination -->
-        <div class="mt-4">
+        <div class="mt-4 flex justify-end">
             {{ $membresias->links() }}
         </div>
     </div>
@@ -161,9 +159,7 @@
 
                 <div>
                     <flux:input size="xs" wire:model="formData.nombre" label="Nombre" required />
-                    @error('formData.nombre')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+<flux:error name="formData.nombre" />
                 </div>
 
                 <div>
@@ -172,26 +168,20 @@
                     </label>
                     <textarea wire:model="formData.descripcion" rows="3"
                         class="w-full rounded-lg border border-zinc-300 bg-white px-2 py-1 text-xs text-zinc-900 shadow-sm focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"></textarea>
-                    @error('formData.descripcion')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+<flux:error name="formData.descripcion" />
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <flux:input size="xs" wire:model.number="formData.duracion_dias" label="Duración (días)"
                             type="number" min="1" required />
-                        @error('formData.duracion_dias')
-                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
+<flux:error name="formData.duracion_dias" />
                     </div>
 
                     <div>
                         <flux:input size="xs" wire:model.number="formData.precio_base" label="Precio Base (S/)"
                             type="number" step="0.01" min="0" required />
-                        @error('formData.precio_base')
-                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
+<flux:error name="formData.precio_base" />
                     </div>
                 </div>
 
@@ -204,18 +194,14 @@
                         <option value="ilimitado">Ilimitado</option>
                         <option value="limitado">Limitado</option>
                     </select>
-                    @error('formData.tipo_acceso')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+<flux:error name="formData.tipo_acceso" />
                 </div>
 
                 @if ($formData['tipo_acceso'] === 'limitado')
                     <div>
                         <flux:input size="xs" wire:model.number="formData.max_visitas_dia"
                             label="Máximo de Visitas por Día" type="number" min="1" />
-                        @error('formData.max_visitas_dia')
-                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
+<flux:error name="formData.max_visitas_dia" />
                     </div>
                 @endif
 
@@ -232,9 +218,7 @@
                             <div>
                                 <flux:input size="xs" wire:model.number="formData.max_dias_congelacion"
                                     label="Máximo de Días de Congelación" type="number" min="1" />
-                                @error('formData.max_dias_congelacion')
-                                    <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                                @enderror
+<flux:error name="formData.max_dias_congelacion" />
                             </div>
                         @endif
                     </div>
@@ -249,9 +233,7 @@
                         <option value="activa">Activa</option>
                         <option value="inactiva">Inactiva</option>
                     </select>
-                    @error('formData.estado')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+<flux:error name="formData.estado" />
                 </div>
             </div>
 
@@ -263,8 +245,11 @@
                 </flux:modal.close>
                 <flux:button variant="primary" size="xs" type="submit" wire:loading.attr="disabled"
                     wire:target="save">
-                    <span wire:loading.remove wire:target="save">{{ $membresiaId ? 'Actualizar' : 'Crear' }}</span>
-                    <span wire:loading wire:target="save">Guardando...</span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <flux:icon name="arrow-path" class="size-4 shrink-0 animate-spin" wire:loading wire:target="save" />
+                        <span wire:loading.remove wire:target="save">{{ $membresiaId ? 'Actualizar' : 'Crear' }}</span>
+                        <span wire:loading wire:target="save">Guardando...</span>
+                    </span>
                 </flux:button>
             </div>
         </form>
@@ -290,8 +275,11 @@
             </flux:modal.close>
             <flux:button variant="danger" size="xs" wire:click="delete" type="button"
                 wire:loading.attr="disabled" wire:target="delete">
-                <span wire:loading.remove wire:target="delete">Eliminar</span>
-                <span wire:loading wire:target="delete">Eliminando...</span>
+                <span class="inline-flex items-center gap-1.5">
+                    <flux:icon name="arrow-path" class="size-4 shrink-0 animate-spin" wire:loading wire:target="delete" />
+                    <span wire:loading.remove wire:target="delete">Eliminar</span>
+                    <span wire:loading wire:target="delete">Eliminando...</span>
+                </span>
             </flux:button>
         </div>
     </flux:modal>

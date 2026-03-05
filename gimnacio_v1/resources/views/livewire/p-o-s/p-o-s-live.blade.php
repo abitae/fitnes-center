@@ -45,8 +45,6 @@
                         Volver a ventas
                     </flux:button>
                 @endif
-                <x-flash-message type="success" />
-                <x-flash-message type="error" />
                 @if ($this->cajaService->validarCajaAbierta(auth()->id()))
                     <span class="inline-flex rounded-full px-2 py-1 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">
                         Caja Abierta

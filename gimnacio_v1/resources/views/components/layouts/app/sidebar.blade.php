@@ -330,19 +330,8 @@
         @endphp
         @if ($flashType)
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                if (typeof window.Swal === 'undefined') return;
-                window.Swal.fire({
-                    icon: @json($flashType),
-                    title: @json($flashType === 'success' ? 'Éxito' : ($flashType === 'error' ? 'Error' : ($flashType === 'warning' ? 'Aviso' : 'Información'))),
-                    text: @json($flashMessage),
-                    toast: true,
-                    position: 'top-end',
-                    timer: 4500,
-                    timerProgressBar: true,
-                    showConfirmButton: false
-                });
-            });
+            window.__flashToast = { type: @json($flashType), message: @json($flashMessage) };
+            window.dispatchEvent(new CustomEvent('flash-toast-pending'));
         </script>
         @endif
         <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>

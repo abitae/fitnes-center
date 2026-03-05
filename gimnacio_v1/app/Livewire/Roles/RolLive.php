@@ -2,13 +2,14 @@
 
 namespace App\Livewire\Roles;
 
+use App\Livewire\Concerns\FlashesToast;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
 
 class RolLive extends Component
 {
-    use WithPagination;
+    use FlashesToast, WithPagination;
 
     public $search = '';
     public $perPage = 15;
@@ -49,7 +50,7 @@ class RolLive extends Component
         $this->authorize('roles.update');
         $role = Role::with('permissions')->find($id);
         if (! $role) {
-            session()->flash('error', 'Rol no encontrado');
+            $this->flashToast('error', 'Rol no encontrado');
             return;
         }
         $this->roleId = $role->id;
@@ -85,19 +86,19 @@ class RolLive extends Component
                 $role->guard_name = $this->formData['guard_name'];
                 $role->save();
                 $role->syncPermissions($this->formData['permissions'] ?? []);
-                session()->flash('success', 'Rol actualizado correctamente');
+                $this->flashToast('success', 'Rol actualizado correctamente');
             } else {
                 $role = Role::create([
                     'name' => $this->formData['name'],
                     'guard_name' => $this->formData['guard_name'],
                 ]);
                 $role->syncPermissions($this->formData['permissions'] ?? []);
-                session()->flash('success', 'Rol creado correctamente');
+                $this->flashToast('success', 'Rol creado correctamente');
             }
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -107,15 +108,15 @@ class RolLive extends Component
         try {
             $role = Role::withCount('users')->findOrFail($this->roleId);
             if ($role->users_count > 0) {
-                session()->flash('error', 'No se puede eliminar el rol: tiene ' . $role->users_count . ' usuario(s) asignado(s). Reasigna los usuarios antes de eliminar.');
+                $this->flashToast('error', 'No se puede eliminar el rol: tiene ' . $role->users_count . ' usuario(s) asignado(s). Reasigna los usuarios antes de eliminar.');
                 return;
             }
             $role->delete();
-            session()->flash('success', 'Rol eliminado correctamente.');
+            $this->flashToast('success', 'Rol eliminado correctamente.');
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 

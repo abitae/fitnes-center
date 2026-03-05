@@ -2,6 +2,7 @@
 
 namespace App\Livewire\MedidasNutricion;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Models\Core\Cliente;
 use App\Models\Core\EvaluacionMedidasNutricion;
 use App\Services\ClienteService;
@@ -15,7 +16,7 @@ use Livewire\WithPagination;
 
 class MedidasNutricionLive extends Component
 {
-    use WithPagination;
+    use FlashesToast, WithPagination;
 
     // Cliente search
     public $clienteSearch = '';
@@ -194,7 +195,7 @@ class MedidasNutricionLive extends Component
     public function openCreateEvaluacionModal()
     {
         if (!$this->selectedClienteId) {
-            session()->flash('error', 'Debes seleccionar un cliente primero');
+            $this->flashToast('error', 'Debes seleccionar un cliente primero');
             return;
         }
 
@@ -208,7 +209,7 @@ class MedidasNutricionLive extends Component
         $evaluacion = $this->evaluacionService->find($id);
 
         if (!$evaluacion) {
-            session()->flash('error', 'Evaluación no encontrada');
+            $this->flashToast('error', 'Evaluación no encontrada');
             return;
         }
 
@@ -227,7 +228,7 @@ class MedidasNutricionLive extends Component
     {
         try {
             if (!$this->selectedClienteId) {
-                session()->flash('error', 'Debes seleccionar un cliente primero');
+                $this->flashToast('error', 'Debes seleccionar un cliente primero');
                 return;
             }
 
@@ -237,10 +238,10 @@ class MedidasNutricionLive extends Component
 
             if ($this->evaluacionId) {
                 $this->evaluacionService->update($this->evaluacionId, $data);
-                session()->flash('success', 'Evaluación actualizada correctamente');
+                $this->flashToast('success', 'Evaluación actualizada correctamente');
             } else {
                 $this->evaluacionService->create($data);
-                session()->flash('success', 'Evaluación creada correctamente');
+                $this->flashToast('success', 'Evaluación creada correctamente');
             }
 
             $this->closeEvaluacionModal();
@@ -248,7 +249,7 @@ class MedidasNutricionLive extends Component
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->handleValidationErrors($e);
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -256,11 +257,11 @@ class MedidasNutricionLive extends Component
     {
         try {
             $this->evaluacionService->delete($this->evaluacionId);
-            session()->flash('success', 'Evaluación eliminada correctamente');
+            $this->flashToast('success', 'Evaluación eliminada correctamente');
             $this->closeEvaluacionModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -296,7 +297,7 @@ class MedidasNutricionLive extends Component
     public function openCreateCitaModal()
     {
         if (!$this->selectedClienteId) {
-            session()->flash('error', 'Debes seleccionar un cliente primero');
+            $this->flashToast('error', 'Debes seleccionar un cliente primero');
             return;
         }
 
@@ -311,7 +312,7 @@ class MedidasNutricionLive extends Component
         $cita = $this->citaService->find($id);
 
         if (!$cita) {
-            session()->flash('error', 'Cita no encontrada');
+            $this->flashToast('error', 'Cita no encontrada');
             return;
         }
 
@@ -330,7 +331,7 @@ class MedidasNutricionLive extends Component
     {
         try {
             if (!$this->selectedClienteId) {
-                session()->flash('error', 'Debes seleccionar un cliente primero');
+                $this->flashToast('error', 'Debes seleccionar un cliente primero');
                 return;
             }
 
@@ -341,10 +342,10 @@ class MedidasNutricionLive extends Component
 
             if ($this->citaId) {
                 $this->citaService->update($this->citaId, $data);
-                session()->flash('success', 'Cita actualizada correctamente');
+                $this->flashToast('success', 'Cita actualizada correctamente');
             } else {
                 $this->citaService->create($data);
-                session()->flash('success', 'Cita creada correctamente');
+                $this->flashToast('success', 'Cita creada correctamente');
             }
 
             $this->closeCitaModal();
@@ -352,7 +353,7 @@ class MedidasNutricionLive extends Component
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->handleValidationErrors($e);
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -360,10 +361,10 @@ class MedidasNutricionLive extends Component
     {
         try {
             $this->citaService->cancelar($id);
-            session()->flash('success', 'Cita cancelada correctamente');
+            $this->flashToast('success', 'Cita cancelada correctamente');
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -371,10 +372,10 @@ class MedidasNutricionLive extends Component
     {
         try {
             $this->citaService->completar($id, $evaluacionId);
-            session()->flash('success', 'Cita completada correctamente');
+            $this->flashToast('success', 'Cita completada correctamente');
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -382,11 +383,11 @@ class MedidasNutricionLive extends Component
     {
         try {
             $this->citaService->delete($this->citaId);
-            session()->flash('success', 'Cita eliminada correctamente');
+            $this->flashToast('success', 'Cita eliminada correctamente');
             $this->closeCitaModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -408,13 +409,13 @@ class MedidasNutricionLive extends Component
             }
             $cliente->trainer_user_id = $trainerUserId;
             $cliente->save();
-            session()->flash('success', 'Trainer asignado correctamente');
+            $this->flashToast('success', 'Trainer asignado correctamente');
             if ($this->selectedClienteId == $clienteId) {
                 $this->selectedCliente = $this->clienteService->find($clienteId);
             }
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -427,13 +428,13 @@ class MedidasNutricionLive extends Component
             }
             $cliente->trainer_user_id = null;
             $cliente->save();
-            session()->flash('success', 'Trainer removido correctamente');
+            $this->flashToast('success', 'Trainer removido correctamente');
             if ($this->selectedClienteId == $clienteId) {
                 $this->selectedCliente = $this->clienteService->find($clienteId);
             }
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -589,7 +590,7 @@ class MedidasNutricionLive extends Component
     {
         foreach ($e->errors() as $key => $messages) {
             foreach ($messages as $message) {
-                session()->flash('error', $message);
+                $this->flashToast('error', $message);
             }
         }
     }

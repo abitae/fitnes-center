@@ -14,8 +14,6 @@
 
         <div class="flex gap-3 items-center justify-end">
             <div class="w-full">
-                <x-flash-message type="success" />
-                <x-flash-message type="error" />
             </div>
             <div class="w-48">
                 <flux:input icon="magnifying-glass" type="search" size="xs"
@@ -96,7 +94,7 @@
         </div>
 
         @if ($usuarios->hasPages())
-            <div class="mt-4">{{ $usuarios->links() }}</div>
+            <div class="mt-4 flex justify-end">{{ $usuarios->links() }}</div>
         @endif
     </div>
 

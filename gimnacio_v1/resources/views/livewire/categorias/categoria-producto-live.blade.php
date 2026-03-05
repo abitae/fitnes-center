@@ -14,8 +14,6 @@
 
         <div class="flex gap-3 items-center justify-end">
             <div class="w-full">
-                <x-flash-message type="success" />
-                <x-flash-message type="error" />
             </div>
             <div class="w-48">
                 <flux:input icon="magnifying-glass" type="search" size="xs" wire:model.live.debounce.300ms="search" placeholder="Buscar..." />
@@ -65,7 +63,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-8 text-center text-xs text-zinc-500">No se encontraron categorías</td>
+                                <td colspan="5" class="px-4 py-8 text-center text-xs text-zinc-500">No hay categorías</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -73,7 +71,7 @@
             </div>
         </div>
 
-        <div class="mt-4">{{ $categorias->links() }}</div>
+        <div class="mt-4 flex justify-end">{{ $categorias->links() }}</div>
     </div>
 
     <!-- Modal Create/Edit -->

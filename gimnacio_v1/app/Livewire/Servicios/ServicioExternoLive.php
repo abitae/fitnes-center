@@ -2,13 +2,14 @@
 
 namespace App\Livewire\Servicios;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Services\ServicioExternoService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class ServicioExternoLive extends Component
 {
-    use WithPagination;
+    use FlashesToast, WithPagination;
 
     public $search = '';
     public $categoriaFilter = '';
@@ -54,7 +55,7 @@ class ServicioExternoLive extends Component
         $this->authorize('servicios.update');
         $servicio = $this->service->find($id);
         if (!$servicio) {
-            session()->flash('error', 'Servicio no encontrado');
+            $this->flashToast('error', 'Servicio no encontrado');
             return;
         }
 
@@ -77,15 +78,15 @@ class ServicioExternoLive extends Component
         try {
             if ($this->servicioId) {
                 $this->service->update($this->servicioId, $this->formData);
-                session()->flash('success', 'Servicio actualizado exitosamente.');
+                $this->flashToast('success', 'Servicio actualizado exitosamente.');
             } else {
                 $this->service->create($this->formData);
-                session()->flash('success', 'Servicio creado exitosamente.');
+                $this->flashToast('success', 'Servicio creado exitosamente.');
             }
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -94,11 +95,11 @@ class ServicioExternoLive extends Component
         $this->authorize('servicios.delete');
         try {
             $this->service->delete($this->servicioId);
-            session()->flash('success', 'Servicio eliminado exitosamente.');
+            $this->flashToast('success', 'Servicio eliminado exitosamente.');
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 

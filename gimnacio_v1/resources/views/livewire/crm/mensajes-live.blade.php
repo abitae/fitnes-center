@@ -4,8 +4,6 @@
             <h1 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Mensajes WhatsApp</h1>
             <p class="text-xs text-zinc-600 dark:text-zinc-400">Envía mensajes a clientes por WhatsApp (CRM)</p>
         </div>
-        <x-flash-message type="success" />
-        <x-flash-message type="error" />
 
         <x-cliente.search-input :clienteSearch="$clienteSearch" :clientes="$clientes" :selectedCliente="$selectedCliente" :isSearching="$isSearching ?? false" />
 
@@ -74,7 +72,7 @@
                 </table>
             </div>
             @if ($mensajes->hasPages())
-                <div class="mt-4">{{ $mensajes->links() }}</div>
+                <div class="mt-4 flex justify-end">{{ $mensajes->links() }}</div>
             @endif
         @else
             <div class="rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800 p-8 text-center text-zinc-500 dark:text-zinc-400">Selecciona un cliente para enviar mensajes y ver historial</div>

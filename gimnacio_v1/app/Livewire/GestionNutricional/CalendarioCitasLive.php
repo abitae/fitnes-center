@@ -2,11 +2,13 @@
 
 namespace App\Livewire\GestionNutricional;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Services\CitaService;
 use Livewire\Component;
 
 class CalendarioCitasLive extends Component
 {
+    use FlashesToast;
     public $modalDetalle = false;
 
     public $citaId = null;
@@ -30,7 +32,7 @@ class CalendarioCitasLive extends Component
         $id = (int) $id;
         $cita = $this->citaService->find($id);
         if (! $cita) {
-            session()->flash('error', 'Cita no encontrada');
+            $this->flashToast('error', 'Cita no encontrada');
             return;
         }
         $this->citaId = $id;
@@ -59,10 +61,10 @@ class CalendarioCitasLive extends Component
                 'estado' => $this->estadoCita,
                 'updated_by' => auth()->id(),
             ]);
-            session()->flash('success', 'Estado de la cita actualizado.');
+            $this->flashToast('success', 'Estado de la cita actualizado.');
             $this->dispatch('calendario-refrescar');
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 

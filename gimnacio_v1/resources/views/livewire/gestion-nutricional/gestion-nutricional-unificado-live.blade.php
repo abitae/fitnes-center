@@ -33,8 +33,6 @@
             @endif
         </div>
         <div class="w-full">
-            <x-flash-message type="success" />
-            <x-flash-message type="error" />
         </div>
 
         <x-cliente.search-input :clienteSearch="$clienteSearch" :clientes="$clientes" :selectedCliente="$selectedCliente" :isSearching="$isSearching" />
@@ -504,7 +502,7 @@
                                 </table>
                             </div>
                             @if ($seguimientos->hasPages())
-                                <div class="mt-4">{{ $seguimientos->links() }}</div>
+                                <div class="mt-4 flex justify-end">{{ $seguimientos->links() }}</div>
                             @endif
                         </div>
                     @endif
@@ -621,7 +619,7 @@
                                 </table>
                             </div>
                             @if ($citas->hasPages())
-                                <div class="mt-4">{{ $citas->links() }}</div>
+                                <div class="mt-4 flex justify-end">{{ $citas->links() }}</div>
                             @endif
                         </div>
                     @endif
@@ -745,9 +743,11 @@
                 </flux:modal.close>
                 <flux:button variant="primary" size="xs" type="submit" wire:loading.attr="disabled"
                     wire:target="saveEvaluacion">
-                    <span wire:loading.remove
-                        wire:target="saveEvaluacion">{{ $evaluacionId ? 'Actualizar' : 'Crear' }}</span>
-                    <span wire:loading wire:target="saveEvaluacion">Guardando...</span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <flux:icon name="arrow-path" class="size-4 shrink-0 animate-spin" wire:loading wire:target="saveEvaluacion" />
+                        <span wire:loading.remove wire:target="saveEvaluacion">{{ $evaluacionId ? 'Actualizar' : 'Crear' }}</span>
+                        <span wire:loading wire:target="saveEvaluacion">Guardando...</span>
+                    </span>
                 </flux:button>
             </div>
         </form>
@@ -766,8 +766,11 @@
             </flux:modal.close>
             <flux:button variant="danger" size="xs" wire:click="deleteEvaluacion" type="button"
                 wire:loading.attr="disabled" wire:target="deleteEvaluacion">
-                <span wire:loading.remove wire:target="deleteEvaluacion">Eliminar</span>
-                <span wire:loading wire:target="deleteEvaluacion">Eliminando...</span>
+                <span class="inline-flex items-center gap-1.5">
+                    <flux:icon name="arrow-path" class="size-4 shrink-0 animate-spin" wire:loading wire:target="deleteEvaluacion" />
+                    <span wire:loading.remove wire:target="deleteEvaluacion">Eliminar</span>
+                    <span wire:loading wire:target="deleteEvaluacion">Eliminando...</span>
+                </span>
             </flux:button>
         </div>
     </flux:modal>

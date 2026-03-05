@@ -18,8 +18,6 @@
         </div>
     </div>
 
-    <x-flash-message type="success" />
-    <x-flash-message type="error" />
 
     <!-- Tabs -->
     <div class="rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-700 dark:bg-zinc-800">

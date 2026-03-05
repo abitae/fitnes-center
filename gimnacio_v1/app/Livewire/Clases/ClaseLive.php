@@ -2,13 +2,14 @@
 
 namespace App\Livewire\Clases;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Services\ClaseService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class ClaseLive extends Component
 {
-    use WithPagination;
+    use FlashesToast, WithPagination;
 
     // Filters and pagination
     public $search = '';
@@ -99,7 +100,7 @@ class ClaseLive extends Component
         $this->authorize('clases.update');
         $clase = $this->service->find($id);
         if (!$clase) {
-            session()->flash('error', 'Clase no encontrada');
+            $this->flashToast('error', 'Clase no encontrada');
             return;
         }
 
@@ -123,10 +124,10 @@ class ClaseLive extends Component
 
             if ($this->claseId) {
                 $this->service->update($this->claseId, $data);
-                session()->flash('success', 'Clase actualizada correctamente');
+                $this->flashToast('success', 'Clase actualizada correctamente');
             } else {
                 $this->service->create($data);
-                session()->flash('success', 'Clase creada correctamente');
+                $this->flashToast('success', 'Clase creada correctamente');
             }
 
             $this->closeModal();
@@ -134,7 +135,7 @@ class ClaseLive extends Component
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->handleValidationErrors($e);
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -158,11 +159,11 @@ class ClaseLive extends Component
         $this->authorize('clases.delete');
         try {
             $this->service->delete($this->claseId);
-            session()->flash('success', 'Clase eliminada exitosamente.');
+            $this->flashToast('success', 'Clase eliminada exitosamente.');
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -180,7 +181,7 @@ class ClaseLive extends Component
     {
         foreach ($e->errors() as $key => $messages) {
             foreach ($messages as $message) {
-                session()->flash('error', $message);
+                $this->flashToast('error', $message);
             }
         }
     }

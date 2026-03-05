@@ -4,8 +4,6 @@
             <h1 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Calendario de Citas</h1>
             <p class="text-xs text-zinc-600 dark:text-zinc-400">Visualiza y gestiona las citas en el calendario</p>
         </div>
-        <x-flash-message type="success" />
-        <x-flash-message type="error" />
 
         {{-- Leyenda de estados --}}
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800/50">

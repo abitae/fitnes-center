@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Usuarios;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -11,7 +12,7 @@ use Livewire\WithPagination;
 
 class UsuarioLive extends Component
 {
-    use WithPagination;
+    use FlashesToast, WithPagination;
 
     public $search = '';
     public $roleFilter = '';
@@ -61,7 +62,7 @@ class UsuarioLive extends Component
         $this->authorize('usuarios.update');
         $user = User::with('roles')->find($id);
         if (! $user) {
-            session()->flash('error', 'Usuario no encontrado');
+            $this->flashToast('error', 'Usuario no encontrado');
             return;
         }
         $this->userId = $user->id;
@@ -111,7 +112,7 @@ class UsuarioLive extends Component
                 }
                 $user->save();
                 $user->syncRoles([$this->formData['role']]);
-                session()->flash('success', 'Usuario actualizado correctamente');
+                $this->flashToast('success', 'Usuario actualizado correctamente');
             } else {
                 $user = User::create([
                     'name' => $this->formData['name'],
@@ -120,12 +121,12 @@ class UsuarioLive extends Component
                     'estado' => $this->formData['estado'],
                 ]);
                 $user->syncRoles([$this->formData['role']]);
-                session()->flash('success', 'Usuario creado correctamente');
+                $this->flashToast('success', 'Usuario creado correctamente');
             }
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -135,15 +136,15 @@ class UsuarioLive extends Component
         try {
             $user = User::findOrFail($this->userId);
             if ($user->id === Auth::user()->id) {
-                session()->flash('error', 'No puedes eliminar tu propio usuario.');
+                $this->flashToast('error', 'No puedes eliminar tu propio usuario.');
                 return;
             }
             $user->delete();
-            session()->flash('success', 'Usuario eliminado correctamente.');
+            $this->flashToast('success', 'Usuario eliminado correctamente.');
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 

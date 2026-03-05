@@ -18,8 +18,6 @@
         <!-- Search and Filters -->
         <div class="flex gap-3 items-center justify-end">
             <div class="w-full">
-                <x-flash-message type="success" />
-                <x-flash-message type="error" />
             </div>
             <div class="w-48">
                 <flux:input icon="magnifying-glass" type="search" size="xs"
@@ -131,7 +129,7 @@
                                 <tr>
                                     <td colspan="6"
                                         class="px-4 py-8 text-center text-xs text-zinc-500 dark:text-zinc-400">
-                                        No se encontraron clientes
+                                        No hay clientes
                                     </td>
                                 </tr>
                             @endforelse
@@ -156,7 +154,7 @@
         </div>
 
         <!-- Pagination -->
-        <div class="mt-4">
+        <div class="mt-4 flex justify-end">
             {{ $clientes->links() }}
         </div>
     </div>
@@ -187,34 +185,24 @@
                     <div>
                         <flux:input size="xs" wire:model="formData.numero_documento" label="Número de Documento"
                             required />
-                        @error('formData.numero_documento')
-                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
+                        <flux:error name="formData.numero_documento" />
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <flux:input size="xs" wire:model="formData.nombres" label="Nombres" required />
-                    @error('formData.nombres')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                    <flux:error name="formData.nombres" />
 
                     <flux:input size="xs" wire:model="formData.apellidos" label="Apellidos" required />
-                    @error('formData.apellidos')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                    <flux:error name="formData.apellidos" />
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <flux:input size="xs" wire:model="formData.telefono" label="Teléfono" type="tel" />
-                    @error('formData.telefono')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                    <flux:error name="formData.telefono" />
 
                     <flux:input size="xs" wire:model="formData.email" label="Email" type="email" />
-                    @error('formData.email')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                    <flux:error name="formData.email" />
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
@@ -222,9 +210,7 @@
                         <flux:select.option value="masculino">Masculino</flux:select.option>
                         <flux:select.option value="femenino">Femenino</flux:select.option>
                     </flux:select>
-                    @error('formData.sexo')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                    <flux:error name="formData.sexo" />
                 </div>
 
                 <div>
@@ -233,9 +219,7 @@
                     </label>
                     <textarea wire:model="formData.direccion" rows="2"
                         class="w-full rounded-lg border border-zinc-300 bg-white px-2 py-1 text-xs text-zinc-900 shadow-sm focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"></textarea>
-                    @error('formData.direccion')
-                        <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                    @enderror
+                    <flux:error name="formData.direccion" />
                 </div>
 
                 <!-- Datos de Salud -->
@@ -299,8 +283,11 @@
                 </flux:modal.close>
                 <flux:button variant="primary" size="xs" type="submit" wire:loading.attr="disabled"
                     wire:target="save">
-                    <span wire:loading.remove wire:target="save">{{ $clienteId ? 'Actualizar' : 'Crear' }}</span>
-                    <span wire:loading wire:target="save">Guardando...</span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <flux:icon name="arrow-path" class="size-4 shrink-0 animate-spin" wire:loading wire:target="save" />
+                        <span wire:loading.remove wire:target="save">{{ $clienteId ? 'Actualizar' : 'Crear' }}</span>
+                        <span wire:loading wire:target="save">Guardando...</span>
+                    </span>
                 </flux:button>
             </div>
         </form>
@@ -416,19 +403,7 @@
                         </div>
 
                         <!-- Error de validación -->
-                        @error('foto')
-                            <div
-                                class="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                                <p class="text-xs text-red-600 dark:text-red-400 flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                    {{ $message }}
-                                </p>
-                            </div>
-                        @enderror
+                        <flux:error name="foto" />
 
                         <!-- Información del archivo seleccionado -->
                         <div x-show="selectedFile" x-transition
@@ -726,8 +701,11 @@
             </flux:modal.close>
             <flux:button variant="danger" size="xs" wire:click="delete" type="button"
                 wire:loading.attr="disabled" wire:target="delete">
+                <span class="inline-flex items-center gap-1.5">
+                <flux:icon name="arrow-path" class="size-4 shrink-0 animate-spin" wire:loading wire:target="delete" />
                 <span wire:loading.remove wire:target="delete">Eliminar</span>
                 <span wire:loading wire:target="delete">Eliminando...</span>
+            </span>
             </flux:button>
         </div>
     </flux:modal>

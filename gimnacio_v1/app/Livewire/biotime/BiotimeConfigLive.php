@@ -2,12 +2,14 @@
 
 namespace App\Livewire\Biotime;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Models\Integration\BiotimeSetting;
 use App\Services\BiotimeApiClient;
 use Livewire\Component;
 
 class BiotimeConfigLive extends Component
 {
+    use FlashesToast;
     public $base_url = '';
 
     public $username = '';
@@ -84,7 +86,7 @@ class BiotimeConfigLive extends Component
         }
 
         $this->last_tested_at = BiotimeSetting::getInstance()?->last_tested_at?->format('d/m/Y H:i');
-        session()->flash('success', __('Configuración guardada correctamente.'));
+        $this->flashToast('success', __('Configuración guardada correctamente.'));
     }
 
     public function testConnection()

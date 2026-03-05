@@ -2,13 +2,14 @@
 
 namespace App\Livewire\Cajas;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Services\CajaService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class CajaLive extends Component
 {
-    use WithPagination;
+    use FlashesToast, WithPagination;
 
     // Filtros y paginación
     public $fechaDesde = '';
@@ -111,11 +112,11 @@ class CajaLive extends Component
         try {
             $this->service->abrirCaja($this->formApertura);
             
-            session()->flash('success', 'Caja abierta exitosamente.');
+            $this->flashToast('success', 'Caja abierta exitosamente.');
             $this->cerrarModalApertura();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -128,17 +129,17 @@ class CajaLive extends Component
         $this->cajaSeleccionada = \App\Models\Core\Caja::with(['usuario', 'pagos'])->find($cajaId);
 
         if (!$this->cajaSeleccionada) {
-            session()->flash('error', 'Caja no encontrada.');
+            $this->flashToast('error', 'Caja no encontrada.');
             return;
         }
 
         if ($this->cajaSeleccionada->estado === 'cerrada') {
-            session()->flash('error', 'La caja ya está cerrada.');
+            $this->flashToast('error', 'La caja ya está cerrada.');
             return;
         }
 
         if ($this->cajaSeleccionada->usuario_id !== auth()->id()) {
-            session()->flash('error', 'Solo el usuario responsable puede cerrar esta caja.');
+            $this->flashToast('error', 'Solo el usuario responsable puede cerrar esta caja.');
             return;
         }
 
@@ -165,7 +166,7 @@ class CajaLive extends Component
     public function cerrarCaja()
     {
         if (!$this->cajaSeleccionada) {
-            session()->flash('error', 'No se ha seleccionado una caja.');
+            $this->flashToast('error', 'No se ha seleccionado una caja.');
             return;
         }
 
@@ -178,11 +179,11 @@ class CajaLive extends Component
         try {
             $this->service->cerrarCaja($this->cajaSeleccionada->id, $this->formCierre);
             
-            session()->flash('success', 'Caja cerrada exitosamente.');
+            $this->flashToast('success', 'Caja cerrada exitosamente.');
             $this->cerrarModalCierre();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -196,7 +197,7 @@ class CajaLive extends Component
             $this->cajaSeleccionada = \App\Models\Core\Caja::with(['usuario'])->find($cajaId);
             $this->mostrarModalReporte = true;
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -223,7 +224,7 @@ class CajaLive extends Component
         ])->find($ventaId);
         
         if (!$venta) {
-            session()->flash('error', 'Venta no encontrada.');
+            $this->flashToast('error', 'Venta no encontrada.');
             return;
         }
         

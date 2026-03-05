@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Membresias;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Models\Core\Membresia;
 use App\Services\MembresiaService;
 use Livewire\Component;
@@ -9,7 +10,7 @@ use Livewire\WithPagination;
 
 class MembresiaLive extends Component
 {
-    use WithPagination;
+    use FlashesToast, WithPagination;
 
     // Filters and pagination
     public $search = '';
@@ -87,7 +88,7 @@ class MembresiaLive extends Component
         $membresia = $this->service->find($id);
 
         if (!$membresia) {
-            session()->flash('error', 'Membresía no encontrada');
+            $this->flashToast('error', 'Membresía no encontrada');
             return;
         }
 
@@ -120,10 +121,10 @@ class MembresiaLive extends Component
 
             if ($this->membresiaId) {
                 $this->service->update($this->membresiaId, $data);
-                session()->flash('success', 'Membresía actualizada correctamente');
+                $this->flashToast('success', 'Membresía actualizada correctamente');
             } else {
                 $this->service->create($data);
-                session()->flash('success', 'Membresía creada correctamente');
+                $this->flashToast('success', 'Membresía creada correctamente');
             }
 
             $this->closeModal();
@@ -131,7 +132,7 @@ class MembresiaLive extends Component
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->handleValidationErrors($e);
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -140,11 +141,11 @@ class MembresiaLive extends Component
         $this->authorize('membresias.delete');
         try {
             $this->service->delete($this->membresiaId);
-            session()->flash('success', 'Membresía eliminada correctamente');
+            $this->flashToast('success', 'Membresía eliminada correctamente');
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -198,7 +199,7 @@ class MembresiaLive extends Component
     {
         foreach ($e->errors() as $key => $messages) {
             foreach ($messages as $message) {
-                session()->flash('error', $message);
+                $this->flashToast('error', $message);
             }
         }
     }

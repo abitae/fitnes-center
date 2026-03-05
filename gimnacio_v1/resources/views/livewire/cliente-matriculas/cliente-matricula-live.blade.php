@@ -19,8 +19,6 @@
 
         <!-- Flash Messages -->
         <div class="w-full">
-            <x-flash-message type="success" />
-            <x-flash-message type="error" />
         </div>
 
         <!-- Cliente Search -->
@@ -276,7 +274,7 @@
 
                     <!-- Pagination -->
                     @if ($matriculas->hasPages())
-                        <div>
+                        <div class="mt-4 flex justify-end">
                             {{ $matriculas->links() }}
                         </div>
                     @endif
@@ -382,9 +380,7 @@
                             <option value="membresia">Membresía</option>
                             <option value="clase">Clase</option>
                         </select>
-                        @error('formData.tipo')
-                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
+                        <flux:error name="formData.tipo" />
                     </div>
                 @endif
 
@@ -401,9 +397,7 @@
                                     {{ number_format($membresia->precio_base, 2) }}</option>
                             @endforeach
                         </select>
-                        @error('formData.membresia_id')
-                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
+                        <flux:error name="formData.membresia_id" />
                     </div>
                 @else
                     <div>
@@ -418,9 +412,7 @@
                                     {{ number_format($clase->obtenerPrecio(), 2) }}</option>
                             @endforeach
                         </select>
-                        @error('formData.clase_id')
-                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
+                        <flux:error name="formData.clase_id" />
                     </div>
                 @endif
 
@@ -436,17 +428,13 @@
                     @if ($formData['tipo'] === 'membresia')
                         <div>
                             <flux:input size="xs" wire:model="formData.fecha_fin" label="Fecha Fin" type="date" required />
-                            @error('formData.fecha_fin')
-                                <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                            @enderror
+                            <flux:error name="formData.fecha_fin" />
                         </div>
                     @else
                         <div>
                             <flux:input size="xs" wire:model.number="formData.sesiones_totales" label="Sesiones Totales"
                                 type="number" min="1" />
-                            @error('formData.sesiones_totales')
-                                <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                            @enderror
+                            <flux:error name="formData.sesiones_totales" />
                         </div>
                     @endif
                 </div>
@@ -455,25 +443,19 @@
                     <div>
                         <flux:input size="xs" wire:model.live.number="formData.precio_lista" label="Precio Lista (S/)"
                             type="number" step="0.01" min="0" required />
-                        @error('formData.precio_lista')
-                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
+                        <flux:error name="formData.precio_lista" />
                     </div>
 
                     <div>
                         <flux:input size="xs" wire:model.live.number="formData.descuento_monto" label="Descuento (S/)"
                             type="number" step="0.01" min="0" />
-                        @error('formData.descuento_monto')
-                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
+                        <flux:error name="formData.descuento_monto" />
                     </div>
 
                     <div>
                         <flux:input size="xs" wire:model.number="formData.precio_final" label="Precio Final (S/)"
                             type="number" step="0.01" min="0" readonly />
-                        @error('formData.precio_final')
-                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
+                        <flux:error name="formData.precio_final" />
                     </div>
                 </div>
 
@@ -490,9 +472,7 @@
                             <option value="congelada">Congelada</option>
                             <option value="completada">Completada</option>
                         </select>
-                        @error('formData.estado')
-                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
+                        <flux:error name="formData.estado" />
                     </div>
 
                     <div>
@@ -506,9 +486,7 @@
                             <option value="telefonico">Telefónico</option>
                             <option value="referido">Referido</option>
                         </select>
-                        @error('formData.canal_venta')
-                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
+                        <flux:error name="formData.canal_venta" />
                     </div>
                 </div>
 
@@ -519,9 +497,7 @@
                         </label>
                         <textarea wire:model="formData.motivo_cancelacion" rows="2"
                             class="w-full rounded-lg border border-zinc-300 bg-white px-2 py-1 text-xs text-zinc-900 shadow-sm focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"></textarea>
-                        @error('formData.motivo_cancelacion')
-                            <p class="mt-0.5 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
-                        @enderror
+                        <flux:error name="formData.motivo_cancelacion" />
                     </div>
                 @endif
             </div>
@@ -534,8 +510,11 @@
                 </flux:modal.close>
                 <flux:button variant="primary" size="xs" type="submit" wire:loading.attr="disabled"
                     wire:target="save">
-                    <span wire:loading.remove wire:target="save">{{ $clienteMatriculaId ? 'Actualizar' : 'Crear' }}</span>
-                    <span wire:loading wire:target="save">Guardando...</span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <flux:icon name="arrow-path" class="size-4 shrink-0 animate-spin" wire:loading wire:target="save" />
+                        <span wire:loading.remove wire:target="save">{{ $clienteMatriculaId ? 'Actualizar' : 'Crear' }}</span>
+                        <span wire:loading wire:target="save">Guardando...</span>
+                    </span>
                 </flux:button>
             </div>
         </form>
@@ -561,8 +540,11 @@
             </flux:modal.close>
             <flux:button variant="danger" size="xs" wire:click="delete" type="button"
                 wire:loading.attr="disabled" wire:target="delete">
+                <span class="inline-flex items-center gap-1.5">
+                <flux:icon name="arrow-path" class="size-4 shrink-0 animate-spin" wire:loading wire:target="delete" />
                 <span wire:loading.remove wire:target="delete">Eliminar</span>
                 <span wire:loading wire:target="delete">Eliminando...</span>
+            </span>
             </flux:button>
         </div>
     </flux:modal>

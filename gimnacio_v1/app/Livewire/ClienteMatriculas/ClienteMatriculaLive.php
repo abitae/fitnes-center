@@ -2,6 +2,7 @@
 
 namespace App\Livewire\ClienteMatriculas;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Models\Core\Cliente;
 use App\Models\Core\ClienteMatricula;
 use App\Services\ClienteMatriculaService;
@@ -13,7 +14,7 @@ use Livewire\WithPagination;
 
 class ClienteMatriculaLive extends Component
 {
-    use WithPagination;
+    use FlashesToast, WithPagination;
 
     // Cliente search
     public $clienteSearch = '';
@@ -157,7 +158,7 @@ class ClienteMatriculaLive extends Component
     {
         $this->authorize('cliente-matriculas.create');
         if (!$this->selectedClienteId) {
-            session()->flash('error', 'Debes seleccionar un cliente primero');
+            $this->flashToast('error', 'Debes seleccionar un cliente primero');
             return;
         }
 
@@ -178,7 +179,7 @@ class ClienteMatriculaLive extends Component
         $clienteMatricula = $this->service->find($id);
 
         if (!$clienteMatricula) {
-            session()->flash('error', 'Matrícula no encontrada');
+            $this->flashToast('error', 'Matrícula no encontrada');
             return;
         }
 
@@ -203,7 +204,7 @@ class ClienteMatriculaLive extends Component
         $this->authorize('cliente-matriculas.create');
         $matricula = $this->service->find($matriculaId);
         if (!$matricula || $matricula->tipo !== 'membresia' || (int) $matricula->cliente_id !== $clienteId) {
-            session()->flash('error', 'Matrícula no encontrada o no es una membresía');
+            $this->flashToast('error', 'Matrícula no encontrada o no es una membresía');
             return;
         }
 
@@ -316,7 +317,7 @@ class ClienteMatriculaLive extends Component
         $this->authorize($this->clienteMatriculaId ? 'cliente-matriculas.update' : 'cliente-matriculas.create');
         try {
             if (!$this->selectedClienteId) {
-                session()->flash('error', 'Debes seleccionar un cliente primero');
+                $this->flashToast('error', 'Debes seleccionar un cliente primero');
                 return;
             }
 
@@ -333,9 +334,9 @@ class ClienteMatriculaLive extends Component
                 $this->service->update($this->clienteMatriculaId, $data);
 
                 if ($eraCongeladaYAhoraActiva) {
-                    session()->flash('success', 'Membresía activada correctamente. La fecha de inicio se actualizó a hoy. Si el cliente tenía otra membresía activa, esta ha pasado a estado congelada.');
+                    $this->flashToast('success', 'Membresía activada correctamente. La fecha de inicio se actualizó a hoy. Si el cliente tenía otra membresía activa, esta ha pasado a estado congelada.');
                 } else {
-                    session()->flash('success', 'Matrícula actualizada correctamente');
+                    $this->flashToast('success', 'Matrícula actualizada correctamente');
                 }
             } else {
                 if ($this->renovandoMatriculaId) {
@@ -350,12 +351,12 @@ class ClienteMatriculaLive extends Component
                 }
                 $this->service->create($data);
                 if ($this->renovandoMatriculaId) {
-                    session()->flash('success', $this->formData['estado'] === 'congelada'
+                    $this->flashToast('success', $this->formData['estado'] === 'congelada'
                         ? 'Membresía renovada. Quedará congelada hasta que termine la membresía actual.'
                         : 'Membresía renovada y activa correctamente.');
                     $this->renovandoMatriculaId = null;
                 } else {
-                    session()->flash('success', 'Matrícula creada correctamente');
+                    $this->flashToast('success', 'Matrícula creada correctamente');
                 }
             }
 
@@ -366,7 +367,7 @@ class ClienteMatriculaLive extends Component
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->handleValidationErrors($e);
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -375,11 +376,11 @@ class ClienteMatriculaLive extends Component
         $this->authorize('cliente-matriculas.delete');
         try {
             $this->service->delete($this->clienteMatriculaId);
-            session()->flash('success', 'Matrícula eliminada correctamente');
+            $this->flashToast('success', 'Matrícula eliminada correctamente');
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -460,7 +461,7 @@ class ClienteMatriculaLive extends Component
     {
         foreach ($e->errors() as $key => $messages) {
             foreach ($messages as $message) {
-                session()->flash('error', $message);
+                $this->flashToast('error', $message);
             }
         }
     }

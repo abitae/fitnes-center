@@ -2,13 +2,14 @@
 
 namespace App\Livewire\Categorias;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Services\CategoriaProductoService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class CategoriaProductoLive extends Component
 {
-    use WithPagination;
+    use FlashesToast, WithPagination;
 
     public $search = '';
     public $estadoFilter = '';
@@ -54,7 +55,7 @@ class CategoriaProductoLive extends Component
         $this->authorize('categorias-productos.update');
         $categoria = $this->service->find($id);
         if (!$categoria) {
-            session()->flash('error', 'Categoría no encontrada');
+            $this->flashToast('error', 'Categoría no encontrada');
             return;
         }
 
@@ -80,15 +81,15 @@ class CategoriaProductoLive extends Component
         try {
             if ($this->categoriaId) {
                 $this->service->update($this->categoriaId, $this->formData);
-                session()->flash('success', 'Categoría actualizada exitosamente.');
+                $this->flashToast('success', 'Categoría actualizada exitosamente.');
             } else {
                 $this->service->create($this->formData);
-                session()->flash('success', 'Categoría creada exitosamente.');
+                $this->flashToast('success', 'Categoría creada exitosamente.');
             }
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -97,11 +98,11 @@ class CategoriaProductoLive extends Component
         $this->authorize('categorias-productos.delete');
         try {
             $this->service->delete($this->categoriaId);
-            session()->flash('success', 'Categoría eliminada exitosamente.');
+            $this->flashToast('success', 'Categoría eliminada exitosamente.');
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 

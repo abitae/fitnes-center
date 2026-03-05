@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Productos;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Services\ProductoService;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -9,7 +10,7 @@ use Livewire\WithPagination;
 
 class ProductoLive extends Component
 {
-    use WithPagination, WithFileUploads;
+    use FlashesToast, WithPagination, WithFileUploads;
 
     public $search = '';
     public $categoriaFilter = '';
@@ -67,7 +68,7 @@ class ProductoLive extends Component
         $this->authorize('productos.update');
         $producto = $this->service->find($id);
         if (!$producto) {
-            session()->flash('error', 'Producto no encontrado');
+            $this->flashToast('error', 'Producto no encontrado');
             return;
         }
 
@@ -120,7 +121,7 @@ class ProductoLive extends Component
             $producto = $this->service->find($this->imageProductoId);
 
             if (!$producto) {
-                session()->flash('error', 'Producto no encontrado');
+                $this->flashToast('error', 'Producto no encontrado');
                 return;
             }
 
@@ -136,13 +137,13 @@ class ProductoLive extends Component
                 'imagen' => $path,
             ]);
             
-            session()->flash('success', 'Imagen subida correctamente');
+            $this->flashToast('success', 'Imagen subida correctamente');
             $this->closeModal();
             $this->resetPage();
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Los errores de validación se mostrarán automáticamente
         } catch (\Exception $e) {
-            session()->flash('error', 'Error al subir la imagen: ' . $e->getMessage());
+            $this->flashToast('error', 'Error al subir la imagen: ' . $e->getMessage());
         }
     }
 
@@ -152,15 +153,15 @@ class ProductoLive extends Component
         try {
             if ($this->productoId) {
                 $this->service->update($this->productoId, $this->formData);
-                session()->flash('success', 'Producto actualizado exitosamente.');
+                $this->flashToast('success', 'Producto actualizado exitosamente.');
             } else {
                 $this->service->create($this->formData);
-                session()->flash('success', 'Producto creado exitosamente.');
+                $this->flashToast('success', 'Producto creado exitosamente.');
             }
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -169,11 +170,11 @@ class ProductoLive extends Component
         $this->authorize('productos.delete');
         try {
             $this->service->delete($this->productoId);
-            session()->flash('success', 'Producto eliminado exitosamente.');
+            $this->flashToast('success', 'Producto eliminado exitosamente.');
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 

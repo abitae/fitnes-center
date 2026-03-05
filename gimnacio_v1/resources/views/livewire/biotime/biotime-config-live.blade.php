@@ -18,8 +18,6 @@
         </div>
     </div>
 
-    <x-flash-message type="success" />
-    <x-flash-message type="error" />
 
     <!-- Form -->
     <div class="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
@@ -72,8 +70,11 @@
             <div class="flex flex-wrap gap-3">
                 <flux:button type="submit" color="purple" variant="primary" wire:loading.attr="disabled"
                     wire:target="save">
-                    <span wire:loading.remove wire:target="save">Guardar</span>
-                    <span wire:loading wire:target="save">Guardando...</span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <flux:icon name="arrow-path" class="size-4 shrink-0 animate-spin" wire:loading wire:target="save" />
+                        <span wire:loading.remove wire:target="save">Guardar</span>
+                        <span wire:loading wire:target="save">Guardando...</span>
+                    </span>
                 </flux:button>
                 <flux:button type="button" variant="ghost" wire:click="testConnection"
                     wire:loading.attr="disabled" wire:target="testConnection">

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\POS;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Models\Core\Producto;
 use App\Models\Core\ServicioExterno;
 use App\Services\CajaService;
@@ -17,6 +18,7 @@ use Livewire\Component;
 
 class POSLive extends Component
 {
+    use FlashesToast;
     // Búsqueda
     public $busqueda = '';
     public $resultadosBusqueda = [];
@@ -87,7 +89,7 @@ class POSLive extends Component
         $this->clientesCobro = collect([]);
         // Validar que haya caja abierta
         if (!$this->cajaService->validarCajaAbierta(auth()->id())) {
-            session()->flash('error', 'No hay una caja abierta. Por favor, abra una caja antes de usar el punto de venta.');
+            $this->flashToast('error', 'No hay una caja abierta. Por favor, abra una caja antes de usar el punto de venta.');
         }
     }
 
@@ -231,7 +233,7 @@ class POSLive extends Component
             if ($this->carrito[$key]['tipo'] === 'producto') {
                 $producto = Producto::find($this->carrito[$key]['id']);
                 if ($producto && !$producto->tieneStockSuficiente($cantidad)) {
-                    session()->flash('error', "Stock insuficiente. Disponible: {$producto->stock_actual}");
+                    $this->flashToast('error', "Stock insuficiente. Disponible: {$producto->stock_actual}");
                     return;
                 }
             }
@@ -326,7 +328,7 @@ class POSLive extends Component
     public function procesarVenta()
     {
         if (empty($this->carrito)) {
-            session()->flash('error', 'El carrito está vacío.');
+            $this->flashToast('error', 'El carrito está vacío.');
             return;
         }
 
@@ -354,9 +356,9 @@ class POSLive extends Component
             $this->ventaProcesada = $venta;
             $this->limpiarCarrito();
             $this->mostrarModalConfirmacion = true;
-            session()->flash('success', 'Venta procesada exitosamente.');
+            $this->flashToast('success', 'Venta procesada exitosamente.');
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -507,7 +509,7 @@ class POSLive extends Component
     {
         try {
             if (!$this->cobroItemId || !$this->cobroItemTipo) {
-                session()->flash('error', 'No se ha seleccionado un ítem para cobrar.');
+                $this->flashToast('error', 'No se ha seleccionado un ítem para cobrar.');
                 return;
             }
             $data = [
@@ -521,10 +523,10 @@ class POSLive extends Component
             } else {
                 $this->clienteMembresiaService->procesarPago($this->cobroItemId, $data);
             }
-            session()->flash('success', 'Cobro registrado correctamente. El pago se ha reportado a la caja abierta.');
+            $this->flashToast('success', 'Cobro registrado correctamente. El pago se ha reportado a la caja abierta.');
             $this->cerrarModalCobro();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 

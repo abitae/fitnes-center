@@ -89,7 +89,7 @@
                         </table>
                     </div>
                     @if ($this->clientesActivosPaginator->hasPages())
-                        <div class="border-t border-zinc-200 pt-3 dark:border-zinc-700">
+                        <div class="mt-4 flex justify-end border-t border-zinc-200 pt-3 dark:border-zinc-700">
                             {{ $this->clientesActivosPaginator->links() }}
                         </div>
                     @endif
@@ -161,7 +161,7 @@
                         </table>
                     </div>
                     @if ($this->clientesInactivosPaginator->hasPages())
-                        <div class="border-t border-zinc-200 pt-3 dark:border-zinc-700">
+                        <div class="mt-4 flex justify-end border-t border-zinc-200 pt-3 dark:border-zinc-700">
                             {{ $this->clientesInactivosPaginator->links() }}
                         </div>
                     @endif
@@ -221,7 +221,7 @@
                         </table>
                     </div>
                     @if ($this->clientesSuspendidosPaginator->hasPages())
-                        <div class="border-t border-zinc-200 pt-3 dark:border-zinc-700">
+                        <div class="mt-4 flex justify-end border-t border-zinc-200 pt-3 dark:border-zinc-700">
                             {{ $this->clientesSuspendidosPaginator->links() }}
                         </div>
                     @endif

@@ -112,7 +112,7 @@
             </table>
         </div>
         @if ($total > 0)
-            <div class="border-t border-zinc-200 px-4 py-3 dark:border-zinc-700">
+            <div class="mt-4 flex justify-end border-t border-zinc-200 px-4 py-3 dark:border-zinc-700">
                 {{ $departmentsPaginator->links() }}
             </div>
         @endif
@@ -167,8 +167,11 @@
                     </flux:button>
                 </flux:modal.close>
                 <flux:button type="submit" color="green" variant="primary" wire:loading.attr="disabled" wire:target="saveDepartment">
-                    <span wire:loading.remove wire:target="saveDepartment">Confirmar</span>
-                    <span wire:loading wire:target="saveDepartment">Guardando...</span>
+                    <span class="inline-flex items-center gap-1.5">
+                        <flux:icon name="arrow-path" class="size-4 shrink-0 animate-spin" wire:loading wire:target="saveDepartment" />
+                        <span wire:loading.remove wire:target="saveDepartment">Confirmar</span>
+                        <span wire:loading wire:target="saveDepartment">Guardando...</span>
+                    </span>
                 </flux:button>
             </div>
         </form>
@@ -188,8 +191,11 @@
                 </flux:button>
             </flux:modal.close>
             <flux:button color="red" variant="primary" wire:click="deleteDepartment" wire:loading.attr="disabled" wire:target="deleteDepartment">
-                <span wire:loading.remove wire:target="deleteDepartment">Eliminar</span>
-                <span wire:loading wire:target="deleteDepartment">Eliminando...</span>
+                <span class="inline-flex items-center gap-1.5">
+                    <flux:icon name="arrow-path" class="size-4 shrink-0 animate-spin" wire:loading wire:target="deleteDepartment" />
+                    <span wire:loading.remove wire:target="deleteDepartment">Eliminar</span>
+                    <span wire:loading wire:target="deleteDepartment">Eliminando...</span>
+                </span>
             </flux:button>
         </div>
     </flux:modal>

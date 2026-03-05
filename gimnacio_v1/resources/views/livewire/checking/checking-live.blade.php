@@ -24,8 +24,6 @@
 
     <!-- Flash Messages -->
     <div>
-        <x-flash-message type="success" />
-        <x-flash-message type="error" />
     </div>
 
     <!-- Búsqueda de Cliente - Diseño Profesional -->

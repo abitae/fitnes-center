@@ -2,6 +2,7 @@
 
 namespace App\Livewire\GestionNutricional;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Models\Core\EvaluacionMedidasNutricion;
 use App\Services\CitaService;
 use App\Services\ClienteService;
@@ -13,7 +14,7 @@ use Livewire\WithPagination;
 
 class GestionNutricionalUnificadoLive extends Component
 {
-    use WithPagination;
+    use FlashesToast, WithPagination;
 
     // Cliente search
     public $clienteSearch = '';
@@ -178,7 +179,7 @@ class GestionNutricionalUnificadoLive extends Component
     {
         $this->authorize('gestion-nutricional.create');
         if (! $this->selectedClienteId) {
-            session()->flash('error', 'Debes seleccionar un cliente primero');
+            $this->flashToast('error', 'Debes seleccionar un cliente primero');
             return;
         }
         $this->resetEvaluacionForm();
@@ -191,7 +192,7 @@ class GestionNutricionalUnificadoLive extends Component
         $this->authorize('gestion-nutricional.update');
         $evaluacion = $this->evaluacionService->find($id);
         if (! $evaluacion) {
-            session()->flash('error', 'Evaluación no encontrada');
+            $this->flashToast('error', 'Evaluación no encontrada');
             return;
         }
         $this->evaluacionId = $evaluacion->id;
@@ -212,7 +213,7 @@ class GestionNutricionalUnificadoLive extends Component
         $this->authorize($this->evaluacionId ? 'gestion-nutricional.update' : 'gestion-nutricional.create');
         try {
             if (! $this->selectedClienteId) {
-                session()->flash('error', 'Debes seleccionar un cliente primero');
+                $this->flashToast('error', 'Debes seleccionar un cliente primero');
                 return;
             }
             $data = $this->mapEvaluacionFormToData();
@@ -221,17 +222,17 @@ class GestionNutricionalUnificadoLive extends Component
 
             if ($this->evaluacionId) {
                 $this->evaluacionService->update($this->evaluacionId, $data);
-                session()->flash('success', 'Evaluación actualizada correctamente');
+                $this->flashToast('success', 'Evaluación actualizada correctamente');
             } else {
                 $this->evaluacionService->create($data);
-                session()->flash('success', 'Evaluación creada correctamente');
+                $this->flashToast('success', 'Evaluación creada correctamente');
             }
             $this->closeEvaluacionModal();
             $this->resetPage();
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->handleValidationErrors($e);
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -240,11 +241,11 @@ class GestionNutricionalUnificadoLive extends Component
         $this->authorize('gestion-nutricional.delete');
         try {
             $this->evaluacionService->delete($this->evaluacionId);
-            session()->flash('success', 'Evaluación eliminada correctamente');
+            $this->flashToast('success', 'Evaluación eliminada correctamente');
             $this->closeEvaluacionModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -300,12 +301,12 @@ class GestionNutricionalUnificadoLive extends Component
     {
         try {
             if (! $this->selectedCliente) {
-                session()->flash('error', 'Selecciona un cliente primero.');
+                $this->flashToast('error', 'Selecciona un cliente primero.');
                 return;
             }
             $urlChat = $this->selectedCliente->whatsapp_url;
             if (! $urlChat) {
-                session()->flash('error', 'El cliente no tiene teléfono registrado. Añade un número en la ficha del cliente para poder enviar por WhatsApp.');
+                $this->flashToast('error', 'El cliente no tiene teléfono registrado. Añade un número en la ficha del cliente para poder enviar por WhatsApp.');
                 return;
             }
             $urlDescarga = $this->reporteService->getUrlDescargaEvaluacionFirmada((int) $evaluacionId);
@@ -315,12 +316,12 @@ class GestionNutricionalUnificadoLive extends Component
 
             $result = $this->reporteService->enviarReportePorWhatsApp((int) $evaluacionId);
             if ($result['success']) {
-                session()->flash('success', $result['message']);
+                $this->flashToast('success', $result['message']);
             } else {
-                session()->flash('error', $result['message']);
+                $this->flashToast('error', $result['message']);
             }
         } catch (\Throwable $e) {
-            session()->flash('error', 'No se pudo enviar el reporte. ' . ($e->getMessage()));
+            $this->flashToast('error', 'No se pudo enviar el reporte. ' . ($e->getMessage()));
         }
     }
 
@@ -329,7 +330,7 @@ class GestionNutricionalUnificadoLive extends Component
      */
     public function mostrarErrorSinTelefono()
     {
-        session()->flash('error', 'El cliente no tiene teléfono registrado. Añade un número en la ficha del cliente para poder enviar por WhatsApp.');
+        $this->flashToast('error', 'El cliente no tiene teléfono registrado. Añade un número en la ficha del cliente para poder enviar por WhatsApp.');
     }
 
     /**
@@ -340,7 +341,7 @@ class GestionNutricionalUnificadoLive extends Component
     public function abrirChatWhatsApp(?string $mensaje = null)
     {
         if (! $this->selectedCliente) {
-            session()->flash('error', 'Selecciona un cliente primero.');
+            $this->flashToast('error', 'Selecciona un cliente primero.');
             return;
         }
         $texto = $mensaje !== null && trim($mensaje) !== ''
@@ -348,7 +349,7 @@ class GestionNutricionalUnificadoLive extends Component
             : 'Hola, te contacto desde el centro.';
         $url = $this->selectedCliente->getWhatsAppUrlWithMessage($texto);
         if (! $url) {
-            session()->flash('error', 'El cliente no tiene teléfono registrado. Añade un número en la ficha del cliente.');
+            $this->flashToast('error', 'El cliente no tiene teléfono registrado. Añade un número en la ficha del cliente.');
             return;
         }
         $this->js('window.open(' . json_encode($url) . ', "whatsapp_chat")');
@@ -359,7 +360,7 @@ class GestionNutricionalUnificadoLive extends Component
     {
         $this->authorize('gestion-nutricional.create');
         if (! $this->selectedClienteId) {
-            session()->flash('error', 'Selecciona un cliente primero');
+            $this->flashToast('error', 'Selecciona un cliente primero');
             return;
         }
         $this->seguimientoId = null;
@@ -381,7 +382,7 @@ class GestionNutricionalUnificadoLive extends Component
         $this->authorize('gestion-nutricional.update');
         $seg = $this->seguimientoService->find($id);
         if (! $seg) {
-            session()->flash('error', 'Seguimiento no encontrado');
+            $this->flashToast('error', 'Seguimiento no encontrado');
             return;
         }
         $this->seguimientoId = $seg->id;
@@ -410,7 +411,7 @@ class GestionNutricionalUnificadoLive extends Component
         $this->authorize($this->seguimientoId ? 'gestion-nutricional.update' : 'gestion-nutricional.create');
         try {
             if (! $this->selectedClienteId) {
-                session()->flash('error', 'Selecciona un cliente');
+                $this->flashToast('error', 'Selecciona un cliente');
                 return;
             }
             $data = [
@@ -426,16 +427,16 @@ class GestionNutricionalUnificadoLive extends Component
             ];
             if ($this->seguimientoId) {
                 $this->seguimientoService->update($this->seguimientoId, $data);
-                session()->flash('success', 'Seguimiento actualizado');
+                $this->flashToast('success', 'Seguimiento actualizado');
             } else {
                 $this->seguimientoService->create($data);
-                session()->flash('success', 'Seguimiento creado');
+                $this->flashToast('success', 'Seguimiento creado');
             }
             $this->modalState['nutricion'] = false;
             $this->seguimientoId = null;
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -444,12 +445,12 @@ class GestionNutricionalUnificadoLive extends Component
         $this->authorize('gestion-nutricional.delete');
         try {
             $this->seguimientoService->delete($this->seguimientoId);
-            session()->flash('success', 'Seguimiento eliminado');
+            $this->flashToast('success', 'Seguimiento eliminado');
             $this->modalState['delete_nutricion'] = false;
             $this->seguimientoId = null;
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -458,7 +459,7 @@ class GestionNutricionalUnificadoLive extends Component
     {
         $this->authorize('gestion-nutricional.create');
         if (! $this->selectedClienteId) {
-            session()->flash('error', 'Selecciona un cliente primero');
+            $this->flashToast('error', 'Selecciona un cliente primero');
             return;
         }
         $this->citaId = null;
@@ -479,7 +480,7 @@ class GestionNutricionalUnificadoLive extends Component
         $this->authorize('gestion-nutricional.update');
         $cita = $this->citaService->find($id);
         if (! $cita) {
-            session()->flash('error', 'Cita no encontrada');
+            $this->flashToast('error', 'Cita no encontrada');
             return;
         }
         $this->citaId = $cita->id;
@@ -507,7 +508,7 @@ class GestionNutricionalUnificadoLive extends Component
         $this->authorize($this->citaId ? 'gestion-nutricional.update' : 'gestion-nutricional.create');
         try {
             if (! $this->selectedClienteId) {
-                session()->flash('error', 'Selecciona un cliente');
+                $this->flashToast('error', 'Selecciona un cliente');
                 return;
             }
             $data = [
@@ -524,16 +525,16 @@ class GestionNutricionalUnificadoLive extends Component
             ];
             if ($this->citaId) {
                 $this->citaService->update($this->citaId, $data);
-                session()->flash('success', 'Cita actualizada');
+                $this->flashToast('success', 'Cita actualizada');
             } else {
                 $this->citaService->create($data);
-                session()->flash('success', 'Cita creada');
+                $this->flashToast('success', 'Cita creada');
             }
             $this->modalState['cita'] = false;
             $this->citaId = null;
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -541,10 +542,10 @@ class GestionNutricionalUnificadoLive extends Component
     {
         try {
             $this->citaService->cancelar($id);
-            session()->flash('success', 'Cita cancelada');
+            $this->flashToast('success', 'Cita cancelada');
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -553,12 +554,12 @@ class GestionNutricionalUnificadoLive extends Component
         $this->authorize('gestion-nutricional.delete');
         try {
             $this->citaService->delete($this->citaId);
-            session()->flash('success', 'Cita eliminada');
+            $this->flashToast('success', 'Cita eliminada');
             $this->modalState['delete_cita'] = false;
             $this->citaId = null;
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -645,7 +646,7 @@ class GestionNutricionalUnificadoLive extends Component
     {
         foreach ($e->errors() as $messages) {
             foreach ($messages as $message) {
-                session()->flash('error', $message);
+                $this->flashToast('error', $message);
             }
         }
     }

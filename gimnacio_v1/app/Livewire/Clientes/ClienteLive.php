@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Clientes;
 
+use App\Livewire\Concerns\FlashesToast;
 use App\Models\Core\Cliente;
 use App\Services\ClienteService;
 use Illuminate\Support\Facades\Storage;
@@ -11,7 +12,7 @@ use Livewire\WithPagination;
 
 class ClienteLive extends Component
 {
-    use WithPagination, WithFileUploads;
+    use FlashesToast, WithPagination, WithFileUploads;
 
     /** Tamaño máximo del lado largo de la foto de perfil (px). */
     private const FOTO_MAX_WIDTH = 800;
@@ -117,7 +118,7 @@ class ClienteLive extends Component
         $cliente = $this->service->find($id);
 
         if (!$cliente) {
-            session()->flash('error', 'Cliente no encontrado');
+            $this->flashToast('error', 'Cliente no encontrado');
             return;
         }
 
@@ -189,33 +190,33 @@ class ClienteLive extends Component
     {
         try {
             if (empty($imageData)) {
-                session()->flash('error', 'No se recibió ninguna imagen.');
+                $this->flashToast('error', 'No se recibió ninguna imagen.');
                 return;
             }
 
             $decoded = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData), true);
             if ($decoded === false || empty($decoded)) {
-                session()->flash('error', 'La imagen capturada no es válida.');
+                $this->flashToast('error', 'La imagen capturada no es válida.');
                 return;
             }
 
             $maxSize = 5 * 1024 * 1024; // 5MB antes de procesar
             if (strlen($decoded) > $maxSize) {
-                session()->flash('error', 'La imagen es demasiado grande. Máximo 5MB.');
+                $this->flashToast('error', 'La imagen es demasiado grande. Máximo 5MB.');
                 return;
             }
 
             $path = $this->processAndStoreImageFromBinary($decoded, 'temp');
             if ($path === null) {
-                session()->flash('error', 'El archivo capturado no es una imagen válida (JPEG, PNG o WEBP).');
+                $this->flashToast('error', 'El archivo capturado no es una imagen válida (JPEG, PNG o WEBP).');
                 return;
             }
 
             $this->formData['foto_captured'] = $path;
             $this->capturedPhotoUrl = Storage::disk('public')->url($path);
-            session()->flash('success', 'Foto capturada correctamente.');
+            $this->flashToast('success', 'Foto capturada correctamente.');
         } catch (\Exception $e) {
-            session()->flash('error', 'Error al capturar la foto: ' . $e->getMessage());
+            $this->flashToast('error', 'Error al capturar la foto: ' . $e->getMessage());
         }
     }
 
@@ -228,13 +229,13 @@ class ClienteLive extends Component
             if (isset($this->formData['foto_captured'])) {
                 $tempPath = $this->formData['foto_captured'];
                 if (!Storage::disk('public')->exists($tempPath)) {
-                    session()->flash('error', 'La foto capturada no se encontró. Captura la foto nuevamente.');
+                    $this->flashToast('error', 'La foto capturada no se encontró. Captura la foto nuevamente.');
                     return;
                 }
                 $binary = Storage::disk('public')->get($tempPath);
                 $path = $this->processAndStoreImageFromBinary($binary, 'clientes');
                 if ($path === null) {
-                    session()->flash('error', 'No se pudo procesar la imagen capturada.');
+                    $this->flashToast('error', 'No se pudo procesar la imagen capturada.');
                     return;
                 }
                 Storage::disk('public')->delete($tempPath);
@@ -249,25 +250,25 @@ class ClienteLive extends Component
                 ]);
                 $path = $this->processAndStoreUploadedFile($this->foto);
                 if ($path === null) {
-                    session()->flash('error', 'No se pudo procesar la imagen.');
+                    $this->flashToast('error', 'No se pudo procesar la imagen.');
                     return;
                 }
             } else {
-                session()->flash('error', 'Debes seleccionar o capturar una imagen.');
+                $this->flashToast('error', 'Debes seleccionar o capturar una imagen.');
                 return;
             }
 
             if (!$this->photoClienteId) {
                 $this->formData['foto_temp'] = $path;
                 unset($this->formData['foto_captured']);
-                session()->flash('success', 'Foto guardada. Completa el formulario y guarda el cliente.');
+                $this->flashToast('success', 'Foto guardada. Completa el formulario y guarda el cliente.');
                 $this->closeModal();
                 return;
             }
 
             $cliente = $this->service->find($this->photoClienteId);
             if (!$cliente) {
-                session()->flash('error', 'Cliente no encontrado');
+                $this->flashToast('error', 'Cliente no encontrado');
                 return;
             }
 
@@ -285,13 +286,13 @@ class ClienteLive extends Component
                 $this->selectedCliente = $clienteActualizado;
             }
 
-            session()->flash('success', 'Foto guardada correctamente.');
+            $this->flashToast('success', 'Foto guardada correctamente.');
             $this->closeModal();
             $this->resetPage();
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->handleValidationErrors($e);
         } catch (\Exception $e) {
-            session()->flash('error', 'Error al subir la foto: ' . $e->getMessage());
+            $this->flashToast('error', 'Error al subir la foto: ' . $e->getMessage());
         }
     }
 
@@ -309,13 +310,13 @@ class ClienteLive extends Component
 
             if ($this->clienteId) {
                 $this->service->update($this->clienteId, $data);
-                session()->flash('success', 'Cliente actualizado correctamente');
+                $this->flashToast('success', 'Cliente actualizado correctamente');
             } else {
                 $data['estado_cliente'] = 'inactivo';
                 $data['biotime_state'] = false;
                 $data['biotime_update'] = false;
                 $this->service->create($data);
-                session()->flash('success', 'Cliente creado correctamente');
+                $this->flashToast('success', 'Cliente creado correctamente');
             }
 
             $this->closeModal();
@@ -323,7 +324,7 @@ class ClienteLive extends Component
         } catch (\Illuminate\Validation\ValidationException $e) {
             $this->handleValidationErrors($e);
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -332,11 +333,11 @@ class ClienteLive extends Component
         $this->authorize('clientes.delete');
         try {
             $this->service->delete($this->clienteId);
-            session()->flash('success', 'Cliente eliminado correctamente');
+            $this->flashToast('success', 'Cliente eliminado correctamente');
             $this->closeModal();
             $this->resetPage();
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
+            $this->flashToast('error', $e->getMessage());
         }
     }
 
@@ -523,7 +524,7 @@ class ClienteLive extends Component
     {
         foreach ($e->errors() as $key => $messages) {
             foreach ($messages as $message) {
-                session()->flash('error', $message);
+                $this->flashToast('error', $message);
             }
         }
     }
