@@ -18,8 +18,31 @@ Route::get('reportes/evaluacion/descargar/{evaluacionId}', [\App\Http\Controller
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
+    // Ejercicios y Rutinas (módulo entrenamiento)
+    Route::prefix('ejercicios')->name('ejercicios.')->middleware('permission:ejercicios-rutinas.view')->group(function () {
+        Route::get('/', \App\Livewire\Exercises\Index::class)->name('index');
+        Route::get('{exercise}', \App\Livewire\Exercises\Show::class)->name('show');
+    });
+    Route::prefix('rutinas-base')->name('rutinas-base.')->middleware('permission:ejercicios-rutinas.view')->group(function () {
+        Route::get('/', \App\Livewire\Routines\Templates\Index::class)->name('index');
+        Route::get('{template}', \App\Livewire\Routines\Templates\Show::class)->name('show');
+        Route::get('{template}/builder', \App\Livewire\Routines\Templates\Builder::class)->name('builder');
+    });
+    Route::prefix('ejercicios-rutinas')->name('ejercicios-rutinas.')->middleware('permission:ejercicios-rutinas.view')->group(function () {
+        Route::get('progreso', \App\Livewire\Reports\ProgressByExercise::class)->name('progreso');
+        Route::get('cumplimiento', \App\Livewire\Reports\Compliance::class)->name('cumplimiento');
+    });
+
     // Clientes
     Route::get('clientes', \App\Livewire\Clientes\ClienteLive::class)->middleware('permission:clientes.view')->name('clientes.index');
+    Route::get('clientes/rutinas/asignar', \App\Livewire\Clients\Routines\Assign::class)->middleware('permission:ejercicios-rutinas.view')->name('clientes.rutinas.asignar');
+    Route::prefix('clientes/{cliente}')->name('clientes.rutinas.')->middleware('permission:ejercicios-rutinas.view')->group(function () {
+        Route::get('rutinas', \App\Livewire\Clients\Routines\Index::class)->name('index');
+        Route::get('rutinas/{clientRoutine}', \App\Livewire\Clients\Routines\Show::class)->name('show');
+        Route::get('rutinas/{clientRoutine}/sesiones', \App\Livewire\Clients\Workouts\Index::class)->name('sesiones.index');
+        Route::get('rutinas/{clientRoutine}/sesiones/crear', \App\Livewire\Clients\Workouts\Form::class)->name('sesiones.create');
+    });
+    Route::get('clientes/{cliente}/sesiones/{workoutSession}', \App\Livewire\Clients\Workouts\Show::class)->middleware('permission:ejercicios-rutinas.view')->name('clientes.sesiones.show');
 
     // Membresías
     Route::get('membresias', \App\Livewire\Membresias\MembresiaLive::class)->middleware('permission:membresias.view')->name('membresias.index');

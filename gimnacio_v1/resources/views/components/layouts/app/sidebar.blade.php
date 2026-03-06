@@ -59,6 +59,26 @@
                 </flux:sidebar.group>
                 @endcan
 
+                @can('ejercicios-rutinas.view')
+                <flux:sidebar.group expandable heading="Ejercicios y Rutinas" class="grid" :expanded="request()->routeIs('ejercicios.*') || request()->routeIs('rutinas-base.*') || request()->routeIs('clientes.rutinas.*') || request()->routeIs('ejercicios-rutinas.*')">
+                    <flux:sidebar.item icon="fire" :href="route('ejercicios.index')" :current="request()->routeIs('ejercicios.*')" wire:navigate>
+                        {{ __('Ejercicios') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="clipboard-document-list" :href="route('rutinas-base.index')" :current="request()->routeIs('rutinas-base.*')" wire:navigate>
+                        {{ __('Rutinas base') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="user-plus" :href="route('clientes.rutinas.asignar')" :current="request()->routeIs('clientes.rutinas.asignar')" wire:navigate>
+                        {{ __('Asignar rutina') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="chart-bar" :href="route('ejercicios-rutinas.progreso')" :current="request()->routeIs('ejercicios-rutinas.progreso')" wire:navigate>
+                        {{ __('Progreso') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="clipboard-document-check" :href="route('ejercicios-rutinas.cumplimiento')" :current="request()->routeIs('ejercicios-rutinas.cumplimiento')" wire:navigate>
+                        {{ __('Cumplimiento') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+                @endcan
+
                 <flux:sidebar.group expandable heading="CRM" class="grid" :expanded="request()->routeIs('crm.*')">
                     @can('crm.view')
                     <flux:sidebar.item icon="view-columns" :href="route('crm.pipeline')" :current="request()->routeIs('crm.pipeline')" wire:navigate>

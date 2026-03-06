@@ -53,6 +53,8 @@ class DatabaseSeeder extends Seeder
             BiotimeAccessLogSeeder::class,   // Depende de Cliente
             IntegrationErrorLogSeeder::class, // Sin dependencias
             AuditLogSeeder::class,            // Depende de User
+            ExerciseSeeder::class,            // Catálogo de ejercicios (módulo Ejercicios y Rutinas)
+            RoutineTemplateSeeder::class,    // Rutinas base demo (depende de ExerciseSeeder)
             // Nota: CajaMovimientoSeeder se ejecuta después si hay ventas
             // Se puede ejecutar manualmente después de crear ventas en el POS
         ]);

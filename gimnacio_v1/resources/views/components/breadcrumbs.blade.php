@@ -46,6 +46,19 @@
             'reportes.cajas' => __('Reporte de Cajas'),
             'reportes.productos-servicios' => __('Reporte Productos y Servicios'),
             'reportes.gimnasio' => __('Reporte del Gimnasio'),
+            'ejercicios.index' => __('Ejercicios'),
+            'ejercicios.show' => __('Detalle ejercicio'),
+            'rutinas-base.index' => __('Rutinas base'),
+            'rutinas-base.show' => __('Detalle rutina base'),
+            'rutinas-base.builder' => __('Builder rutina'),
+            'clientes.rutinas.asignar' => __('Asignar rutina'),
+            'clientes.rutinas.index' => __('Rutinas del cliente'),
+            'clientes.rutinas.show' => __('Detalle rutina'),
+            'clientes.rutinas.sesiones.index' => __('Sesiones'),
+            'clientes.rutinas.sesiones.create' => __('Registrar sesión'),
+            'clientes.sesiones.show' => __('Detalle sesión'),
+            'ejercicios-rutinas.progreso' => __('Progreso por ejercicio'),
+            'ejercicios-rutinas.cumplimiento' => __('Cumplimiento'),
             'profile.edit' => __('Settings'),
             'user-password.edit' => __('Contraseña'),
             'appearance.edit' => __('Apariencia'),
@@ -75,11 +88,16 @@
                 $parentLabel = __('CRM');
                 $parentRoute = 'crm.pipeline';
             }
+            if (str_starts_with($routeName, 'ejercicios.') || str_starts_with($routeName, 'rutinas-base.') || str_starts_with($routeName, 'clientes.rutinas.') || str_starts_with($routeName, 'clientes.sesiones.') || str_starts_with($routeName, 'ejercicios-rutinas.')) {
+                $parentLabel = __('Ejercicios y Rutinas');
+                $parentRoute = 'ejercicios.index';
+            }
             if ($parentLabel) {
-                $parentRoute = match (true) {
+                $parentRoute = $parentRoute ?? match (true) {
                     str_starts_with($routeName, 'gestion-nutricional.') => 'gestion-nutricional.index',
                     str_starts_with($routeName, 'biotime.') => 'biotime.index',
                     str_starts_with($routeName, 'crm.') => 'crm.pipeline',
+                    str_starts_with($routeName, 'ejercicios-rutinas.') => 'ejercicios-rutinas.progreso',
                     default => 'reportes.index',
                 };
                 $segments[] = ['label' => $parentLabel, 'url' => route($parentRoute)];

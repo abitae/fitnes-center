@@ -38,6 +38,7 @@ class RoleSeeder extends Seeder
         // Permisos CRUD por módulo: {recurso}.view, .create, .update, .delete
         $resources = [
             'clientes',
+            'ejercicios-rutinas',
             'membresias',
             'cliente-matriculas',
             'clases',
@@ -73,7 +74,7 @@ class RoleSeeder extends Seeder
         $admin = Role::findByName('administrador', $guard);
         $admin->givePermissionTo(array_merge(['manage-users', 'manage-roles'], $allCrudPermissions));
 
-        // Trainer: clientes (ver/editar), clases (ver), gestión nutricional (completo), cliente-matrículas (ver)
+        // Trainer: clientes (ver/editar), clases (ver), gestión nutricional (completo), cliente-matrículas (ver), ejercicios-rutinas (completo)
         $trainer = Role::findByName('trainer', $guard);
         $trainer->syncPermissions([
             'clientes.view', 'clientes.update',
@@ -81,6 +82,7 @@ class RoleSeeder extends Seeder
             'cliente-matriculas.view',
             'gestion-nutricional.view', 'gestion-nutricional.create', 'gestion-nutricional.update', 'gestion-nutricional.delete',
             'checking.view', 'checking.create', 'checking.update',
+            'ejercicios-rutinas.view', 'ejercicios-rutinas.create', 'ejercicios-rutinas.update', 'ejercicios-rutinas.delete',
         ]);
 
         // Caja: cajas y POS (ver, crear, actualizar), reportes (ver)

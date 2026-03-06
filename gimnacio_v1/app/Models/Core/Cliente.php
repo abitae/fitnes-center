@@ -169,6 +169,11 @@ class Cliente extends Model
         return $this->hasMany(\App\Models\Crm\CrmTask::class, 'cliente_id');
     }
 
+    public function clientRoutines(): HasMany
+    {
+        return $this->hasMany(\App\Models\ClientRoutine::class, 'cliente_id');
+    }
+
     public function trainerUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'trainer_user_id');
